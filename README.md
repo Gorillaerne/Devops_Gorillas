@@ -35,3 +35,7 @@ To support the refined services, the **Gorilla Mux** toolkit has been integrated
 | **Project Layout** | Segregated Legacy and Refined codebases | Completed |
 | **Go Modules** | Initialized workspace and dependencies | Completed |
 | **Web Framework** | Integrated `gorilla/mux` | Installed |
+```
+
+Malthe - oprettet epics og uploaded WhoKnows_Go_Gorilla_ProjectPlan.pdf til projektet. 
+Ligger under Devops_Gorillas/Files/WhoKnows_Go_Gorilla_ProjectPlan.pdf
