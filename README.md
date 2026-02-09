@@ -40,3 +40,11 @@ To support the refined services, the **Gorilla Mux** toolkit has been integrated
 
 Malthe - oprettet epics og uploaded WhoKnows_Go_Gorilla_ProjectPlan.pdf til projektet. 
 Ligger under Devops_Gorillas/Files/WhoKnows_Go_Gorilla_ProjectPlan.pdf
+
+## Project Update: Go Backend Restructure & Endpoints
+**Date:** 09/02/2026
+
+---
+
+### Step 1: Project Structure Update
+We reorganized the Go project to a more maintainable structure in `main.go`, separating concerns for pages, handlers, models, and services. The new layout improves readability and prepares the codebase for additional features.
