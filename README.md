@@ -8,6 +8,7 @@ Opgraderingen blev udført automatisk ved hjælp af værktøjet `2to3`, som hån
 **Kommando anvendt:**
 ```bash
 2to3 -w app.py
+```
 
 
 ## Project Update: Migration & Framework Integration
