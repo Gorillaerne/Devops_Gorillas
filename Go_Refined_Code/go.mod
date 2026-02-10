@@ -1,5 +1,8 @@
-module Refined_Project
+module devops_gorillas
 
-go 1.25.7
+go 1.22
 
-require github.com/gorilla/mux v1.8.1 // indirect
+require (
+	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/mattn/go-sqlite3 v1.14.33 // indirect
+)
