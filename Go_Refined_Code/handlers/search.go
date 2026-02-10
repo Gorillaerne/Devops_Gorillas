@@ -7,9 +7,9 @@ import (
 )
 
 type SearchResult struct {
-	Title       string
-	Description string
-	URL         string
+	Title   string
+	URL     string
+	Content string
 }
 
 func SearchHandler(tmpl *template.Template) http.HandlerFunc {
@@ -20,11 +20,12 @@ func SearchHandler(tmpl *template.Template) http.HandlerFunc {
 
 		if q != "" {
 			rows, err := database.DB.Query(`
-				SELECT title, description, url
-				FROM pages
-				WHERE title LIKE ? OR description LIKE ?
-				LIMIT 20
-			`, "%"+q+"%", "%"+q+"%")
+			SELECT title, content, url
+			FROM pages
+			WHERE title LIKE ? OR content LIKE ?
+			LIMIT 20
+`, "%"+q+"%", "%"+q+"%")
+
 			if err != nil {
 				http.Error(w, err.Error(), 500)
 				return
@@ -33,7 +34,7 @@ func SearchHandler(tmpl *template.Template) http.HandlerFunc {
 
 			for rows.Next() {
 				var r SearchResult
-				rows.Scan(&r.Title, &r.Description, &r.URL)
+				rows.Scan(&r.Title, &r.Content, &r.URL)
 				results = append(results, r)
 			}
 		}
