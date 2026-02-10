@@ -38,7 +38,7 @@ func SearchHandler(tmpl *template.Template) http.HandlerFunc {
 			}
 		}
 
-		tmpl.ExecuteTemplate(w, "search.html", map[string]any{
+		tmpl.ExecuteTemplate(w, "layout.html", map[string]any{
 			"search_results": results,
 			"q":              q,
 		})

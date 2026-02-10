@@ -49,5 +49,9 @@ func main() {
 
 	// 4️⃣ Server
 	log.Println("Server kører på http://localhost:8080")
+	r.PathPrefix("/static/").Handler(
+		http.StripPrefix("/static/",
+			http.FileServer(http.Dir("static"))),
+	)
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
