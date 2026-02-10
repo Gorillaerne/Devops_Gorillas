@@ -1,29 +1,56 @@
 {{ define "body" }}
 
 <div>
-    <input id="search-input" placeholder="Search..." value="{{ .q }}"/>
-    <button onclick="makeSearchRequest()">Search</button>
+    <input id="search-input" placeholder="Search..." value="{{ .q }}" />
+    <button id="search-button">Search</button>
 </div>
 
-<div id="results">
-    {{ range .search_results }}
-    <div>
-        <h2>
-            <a class="search-result-title" href="{{ .URL }}">
-                {{ .Title }}
-            </a>
-        </h2>
-        <p class="search-result-description">
-            {{ .Description }}
-        </p>
-    </div>
-    {{ end }}
-</div>
+<div id="results"></div>
 
 <script>
-    function makeSearchRequest() {
-        const query = document.getElementById("search-input").value;
-        window.location.href = "/search?q=" + encodeURIComponent(query);
+    const input = document.getElementById("search-input");
+    const button = document.getElementById("search-button");
+    const resultsDiv = document.getElementById("results");
+
+    button.addEventListener("click", search);
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") search();
+    });
+
+    async function search() {
+        const q = input.value.trim();
+        if (!q) return;
+
+        resultsDiv.innerHTML = "<p>Searching...</p>";
+
+        try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+            const results = await response.json();
+            renderResults(results);
+        } catch (err) {
+            console.error(err);
+            resultsDiv.innerHTML = "<p>Error loading results</p>";
+        }
+    }
+
+    function renderResults(results) {
+        if (!results.length) {
+            resultsDiv.innerHTML = "<p>No results found.</p>";
+            return;
+        }
+
+        resultsDiv.innerHTML = results.map(r => `
+      <div>
+        <h2>
+          <a class="search-result-title" href="${r.URL}">
+            ${r.Title}
+          </a>
+        </h2>
+        <p class="search-result-description">
+          ${r.Content}
+        </p>
+      </div>
+    `).join("");
     }
 </script>
 

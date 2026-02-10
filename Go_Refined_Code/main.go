@@ -41,7 +41,7 @@ func main() {
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/search", handlers.SearchHandler(tmpl)).Methods("GET")
+	api.HandleFunc("/search", handlers.SearchAPIHandler).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
 	api.HandleFunc("/register", homeHandler).Methods("POST")
 	api.HandleFunc("/login", homeHandler).Methods("POST")
