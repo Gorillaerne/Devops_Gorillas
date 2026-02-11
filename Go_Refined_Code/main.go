@@ -3,6 +3,7 @@ package main
 import (
 	"devops_gorillas/database"
 	"devops_gorillas/handlers"
+	"github.com/gorilla/sessions"
 	"fmt"
 	"github.com/gorilla/mux"
 	"html/template"
@@ -20,6 +21,8 @@ func main() {
 	if err := database.Connect(); err != nil {
 		log.Fatal(err)
 	}
+
+	var Store = sessions.NewCookieStore([]byte("your-secret-key"))
 
 	// 2️⃣ Templates
 
@@ -43,7 +46,7 @@ func main() {
 	api.HandleFunc("/search", handlers.SearchAPIHandler).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
 	api.HandleFunc("/register", homeHandler).Methods("POST")
-	api.HandleFunc("/login", homeHandler).Methods("POST")
+	api.HandleFunc("/login", handlers.HandleApiLogin(database.DB,Store, loginTmpl)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
 
 	// 4️⃣ Server

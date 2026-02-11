@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"log"
+
 )
 
 type Page struct {
@@ -25,7 +26,7 @@ func ServeLandingPage(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 
 		language := r.URL.Query().Get("language")
 		if language == "" {
-			language = "en" // Default to English
+			language = "en"
 		}
 
 		var results []Page
@@ -53,6 +54,7 @@ log.Println("Q: " + q)
             Q:         q,
             SearchResults: results,
         }
+	
 
 		tmpl.ExecuteTemplate(w, "layout.html", data)
 	}
