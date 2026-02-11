@@ -1,43 +1,57 @@
-{% extends "layout.html" %}
-{% block title %}
-{% endblock %}
-{% block body %}
+{{ define "body" }}
+
 <div>
-  <input id="search-input" placeholder="Search..." value="{{ request.args.get('q', '') }}"/>
-  <button id="search-button" onclick="makeSearchRequest()">Search</button>
+    <input id="search-input" placeholder="Search..." value="{{ .q }}" />
+    <button id="search-button">Search</button>
 </div>
 
-<div id="results">
-  {% for result in search_results %}
-  <div>
-      <h2><a class="search-result-title" href="{{ result.url }}">{{ result.title }}</a></h2>
-      <p class="search-result-description">{{ result.description }}</p>
-  </div>
-  {% endfor %}
-</div>
+<div id="results"></div>
 
 <script>
-  let searchInput;
+    const input = document.getElementById("search-input");
+    const button = document.getElementById("search-button");
+    const resultsDiv = document.getElementById("results");
 
-  document.addEventListener('DOMContentLoaded', () => {
-    searchInput = document.getElementById("search-input");
-
-    // Focus the input field
-    searchInput.focus();
-
-    // Search when the user presses Enter
-    searchInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-          makeSearchRequest();
-        }
+    button.addEventListener("click", search);
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") search();
     });
-  });
 
-  function makeSearchRequest() {
-    const query = searchInput.value;
-    const url = new URL(window.location.href);
-    url.searchParams.set('q', query);
-    window.location.href = url.toString();
-  }
+    async function search() {
+        const q = input.value.trim();
+        if (!q) return;
+
+        resultsDiv.innerHTML = "<p>Searching...</p>";
+
+        try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+            const results = await response.json();
+            renderResults(results);
+        } catch (err) {
+            console.error(err);
+            resultsDiv.innerHTML = "<p>Error loading results</p>";
+        }
+    }
+
+    function renderResults(results) {
+        if (!results.length) {
+            resultsDiv.innerHTML = "<p>No results found.</p>";
+            return;
+        }
+
+        resultsDiv.innerHTML = results.map(r => `
+      <div>
+        <h2>
+          <a class="search-result-title" href="${r.URL}">
+            ${r.Title}
+          </a>
+        </h2>
+        <p class="search-result-description">
+          ${r.Content}
+        </p>
+      </div>
+    `).join("");
+    }
 </script>
-{% endblock %}
+
+{{ end }}
