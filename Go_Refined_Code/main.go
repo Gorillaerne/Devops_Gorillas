@@ -1,16 +1,16 @@
 package main
 
 import (
+	"devops_gorillas/database"
+	"devops_gorillas/handlers"
 	"fmt"
+	"github.com/gorilla/mux"
 	"html/template"
 	"log"
 	"net/http"
-	"github.com/gorilla/mux"
-
-	"devops_gorillas/database"
-	"devops_gorillas/handlers"
 )
 
+  // Just for testing endpoints
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "test endpoints")
 }
@@ -22,23 +22,21 @@ func main() {
 	}
 
 	// 2️⃣ Templates
-	tmpl := template.Must(
-		template.ParseFiles(
-			"templates/layout.html",
-			"templates/search.html",
-			"templates/about.html",
-		),
-	)
+
+	searchTmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/search.html"))
+	aboutTmpl := template.Must(template.ParseFiles("templates/about.html"))
+	loginTmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/login.html"))
+	registerTmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/register.html"))
 
 	// 3️⃣ Router
 	r := mux.NewRouter()
 
 	// Web
-	r.HandleFunc("/", handlers.SearchHandler(tmpl)).Methods("GET")
+	r.HandleFunc("/", handlers.ServeLandingPage(database.DB, searchTmpl)).Methods("GET")
 	r.HandleFunc("/weather", homeHandler).Methods("GET")
-	r.HandleFunc("/register", homeHandler).Methods("GET")
-	r.HandleFunc("/login", homeHandler).Methods("GET")
-	r.HandleFunc("/about", handlers.AboutHandler(tmpl)).Methods("GET")
+	r.HandleFunc("/register", handlers.ServeRegisterPage(registerTmpl)).Methods("GET")
+	r.HandleFunc("/login", handlers.ServeLoginPage(loginTmpl)).Methods("GET")
+	r.HandleFunc("/about", handlers.ServeAboutPage(aboutTmpl)).Methods("GET")
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()

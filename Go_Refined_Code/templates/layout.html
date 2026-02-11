@@ -2,7 +2,7 @@
 <html lang="da">
 <head>
   <meta charset="utf-8">
-  <title>¿Who Knows?</title>
+  <title>{{ block "title" . }}¿Who Knows?{{ end }}</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
   <div class="navigation">
     <nav>
       <h1>
-        <a href="/search">¿Who Knows?</a>
+        <a href="/">¿Who Knows?</a>
       </h1>
 
       <a id="nav-login" href="/login">Log in</a>
