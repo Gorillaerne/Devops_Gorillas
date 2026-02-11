@@ -27,6 +27,7 @@ func main() {
 		template.ParseFiles(
 			"templates/layout.html",
 			"templates/search.html",
+			"templates/about.html",
 		),
 	)
 
@@ -38,6 +39,7 @@ func main() {
 	r.HandleFunc("/weather", homeHandler).Methods("GET")
 	r.HandleFunc("/register", homeHandler).Methods("GET")
 	r.HandleFunc("/login", homeHandler).Methods("GET")
+	r.HandleFunc("/about", handlers.AboutHandler(tmpl)).Methods("GET")
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
