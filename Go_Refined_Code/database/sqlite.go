@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/glebarez/go-sqlite"
 	"log"
 )
 
@@ -12,7 +12,7 @@ func Connect() error {
 	log.Println("Connecting to SQLite database...")
 
 	var err error
-	DB, err = sql.Open("sqlite3", "data/Gorilla_whoknows.db")
+	DB, err = sql.Open("sqlite", "data/Gorilla_whoknows.db")
 	if err != nil {
 		return err
 	}
