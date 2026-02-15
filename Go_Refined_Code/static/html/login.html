@@ -1,11 +1,9 @@
-{{ define "title" }}Sign In{{ end }}
 
-{{ define "body" }}
   <h2>Log In</h2>
   
-  {{ if .error }}
-    <div class="error"><strong>Error:</strong> {{ .error }}</div>
-  {{ end }}
+
+    <div class="error"><strong></strong></div>
+
 
   <form action="/api/login" method="POST">
     <dl>
@@ -21,4 +19,3 @@
       <input type="submit" id="login-button" value="Log In">
     </div>
   </form>
-{{ end }}

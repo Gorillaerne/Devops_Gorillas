@@ -2,11 +2,10 @@ package main
 
 import (
 	"devops_gorillas/database"
-	"devops_gorillas/handlers"
-	"github.com/gorilla/sessions"
+	apiHandlers "devops_gorillas/handlers"
 	"fmt"
 	"github.com/gorilla/mux"
-	"html/template"
+	cors "github.com/gorilla/handlers"
 	"log"
 	"net/http"
 )
@@ -22,31 +21,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var Store = sessions.NewCookieStore([]byte("your-secret-key"))
-
-	// 2️⃣ Templates
-
-	searchTmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/search.html"))
-	aboutTmpl := template.Must(template.ParseFiles("templates/about.html"))
-	loginTmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/login.html"))
-	registerTmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/register.html"))
 
 	// 3️⃣ Router
 	r := mux.NewRouter()
-
-	// Web
-	r.HandleFunc("/", handlers.ServeLandingPage(database.DB, searchTmpl)).Methods("GET")
-	r.HandleFunc("/weather", homeHandler).Methods("GET")
-	r.HandleFunc("/register", handlers.ServeRegisterPage(registerTmpl)).Methods("GET")
-	r.HandleFunc("/login", handlers.ServeLoginPage(loginTmpl)).Methods("GET")
-	r.HandleFunc("/about", handlers.ServeAboutPage(aboutTmpl)).Methods("GET")
-
 	// API
 	api := r.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/search", handlers.SearchAPIHandler).Methods("GET")
+	api.HandleFunc("/search", apiHandlers.SearchAPIHandler).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
 	api.HandleFunc("/register", homeHandler).Methods("POST")
-	api.HandleFunc("/login", handlers.HandleApiLogin(database.DB,Store, loginTmpl)).Methods("POST")
+	api.HandleFunc("/login", homeHandler).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
 
 	// 4️⃣ Server
@@ -55,5 +38,11 @@ func main() {
 		http.StripPrefix("/static/",
 			http.FileServer(http.Dir("static"))),
 	)
-	log.Fatal(http.ListenAndServe(":8080", r))
+	// CORS options
+	headersOk := cors.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	originsOk := cors.AllowedOrigins([]string{"*"})
+	methodsOk := cors.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+
+	http.ListenAndServe(":8080",
+		cors.CORS(originsOk, headersOk, methodsOk)(r))
 }

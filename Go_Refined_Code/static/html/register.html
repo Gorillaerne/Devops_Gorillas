@@ -1,10 +1,7 @@
-{{ define "title" }}Register{{ end }}
-
-{{ define "body" }}
 <h2>Sign Up</h2>
-{{ if .error }}
-<div class="error"><strong>Error:</strong> {{ .error }}</div>
-{{ end }}
+
+<div class="error"><strong>Error:</strong></div>
+
 <form action="/api/register" method="POST">
   <dl>
     <dt>Username:
@@ -19,4 +16,3 @@
   </dl>
   <div class="actions"><input type="submit" value="Sign Up"></div>
 </form>
-{{ end }}
