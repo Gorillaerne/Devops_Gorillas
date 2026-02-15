@@ -2,8 +2,8 @@
 <html lang="da">
 <head>
   <meta charset="utf-8">
-  <title>{{ block "title" . }}¿Who Knows?{{ end }}</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <title>Who knows?!?!</title>
+  <link rel="stylesheet" href="..\style.css">
 </head>
 <body>
 
@@ -13,14 +13,20 @@
       <h1>
         <a href="/">¿Who Knows?</a>
       </h1>
-
       <a id="nav-login" href="/login">Log in</a>
       <a id="nav-register" href="/register">Register</a>
     </nav>
   </div>
 
   <div class="body">
-    {{ template "body" . }}
+
+
+<div>
+  <input id="search-input" placeholder="Search..." value=""/>
+  <button id="search-button" onclick="makeSearchRequest()">Search</button>
+</div>
+
+
   </div>
 
   <div class="footer">
