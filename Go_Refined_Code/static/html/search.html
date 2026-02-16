@@ -1,26 +1,5 @@
 
-{{ define "body" }}
-<div>
-  <input id="search-input" placeholder="Search..." value="{{ .Q }}"/>
-  <button id="search-button" onclick="makeSearchRequest()">Search</button>
-</div>
 
-<div id="results">
-    {{ range .SearchResults }}
-    <div>
-        <h2>
-            <a class="search-result-title" href="{{ .URL }}">
-                {{ .Title }}
-            </a>
-        </h2>
-        <p class="search-result-description">
-           <!--  {{ .Content }} -->
-        </p>
-    </div>
-    {{ else }}
-      
-    {{ end }}
-</div>
 
 <script>
 console.log("{{ .SearchResults }}")
@@ -55,4 +34,3 @@ console.log("{{ .SearchResults }}")
     window.location.href = url.toString();
   }
 </script>
-{{ end }}
