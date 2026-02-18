@@ -4,15 +4,30 @@ import (
 	"database/sql"
 	_ "github.com/glebarez/go-sqlite"
 	"log"
+	"os"
+	"github.com/joho/godotenv"
 )
+
 
 var DB *sql.DB
 
 func Connect() error {
+	
+
+	err := godotenv.Load()
+    if err != nil {
+        log.Println("No .env file found, using defaults or system environment")
+    }
+	
 	log.Println("Connecting to SQLite database...")
 
-	var err error
-	DB, err = sql.Open("sqlite", "data/Gorilla_whoknows.db")
+	dbPath := os.Getenv("DATABASE_PATH")
+    if dbPath == "" {
+        dbPath = "data/Gorilla_whoknows.db" 
+    }
+	
+	
+	DB, err = sql.Open("sqlite", dbPath)
 	if err != nil {
 		return err
 	}
