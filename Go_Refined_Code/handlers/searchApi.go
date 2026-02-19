@@ -7,6 +7,12 @@ import (
 	"devops_gorillas/database"
 )
 
+type SearchResult struct {
+	Title   string
+	URL     string
+	Content string
+}
+
 func SearchAPIHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	log.Println("API search query:", q)
