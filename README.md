@@ -76,3 +76,12 @@ ssh azureuser@51.120.83.21
 ```
 
 > Note: Update this section if additional users or infrastructure changes are made.
+
+
+### HTML pages update 19/02/2026
+
+### Dynamic Content Rendering
+
+All dynamic content is now handled on the client side.  
+Instead of using embedded template logic, we use **JavaScript to fetch data from the Go backend** and dynamically update the HTML pages.  
+This keeps the HTML files pure and static while still allowing real‑time, dynamic updates through API calls.
