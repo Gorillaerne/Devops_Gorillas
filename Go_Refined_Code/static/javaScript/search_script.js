@@ -13,7 +13,7 @@ searchButton.addEventListener("click", function () {
 
     callSearchRestApi(query)
         .then(searchResults => {
-            renderSearchResults(searchResults)
+            renderSearchResults(searchResults.data)
         })
         .catch(error => {
             console.error(error)
@@ -31,7 +31,7 @@ function renderSearchResults(searchResults) {
         const searchResultDiv = document.createElement("div")
         const searchResultH2 = document.createElement("H2")
         const searchResultA = document.createElement("a")
-        searchResultA.textContent = searchResult.Title
+        searchResultA.textContent = searchResult.title
         searchResultA.classList.add("search-result-title")
         searchResultA.href = searchResult.URL
         searchResultH2.appendChild(searchResultA)

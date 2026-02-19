@@ -8,9 +8,13 @@ import (
 )
 
 type SearchResult struct {
-	Title   string
+	Title   string `json:"title"`
 	URL     string
-	Content string
+	Content string `json:"content"`
+}
+
+type SearchResponse struct {
+	Data []SearchResult `json:"data"`
 }
 
 func SearchAPIHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +43,11 @@ func SearchAPIHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	response := SearchResponse{
+		Data: results,
+	}
+	log.Println("WRAPPED RESPONSE EXECUTED")
 	// 🟢 JSON response
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(results)
+	json.NewEncoder(w).Encode(response)
 }
