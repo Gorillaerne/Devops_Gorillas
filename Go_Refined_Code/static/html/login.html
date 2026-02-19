@@ -1,3 +1,25 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <title>Who knows?!?!</title>
+  <link rel="stylesheet" href="..\style.css">
+</head>
+<body>
+
+<div class="page">
+  <div class="navigation">
+    <nav>
+      <h1>
+        <a href="/">¿Who Knows?</a>
+      </h1>
+      <a id="nav-login" href="/login">Log in</a>
+      <a id="nav-register" href="/register">Register</a>
+    </nav>
+  </div>
+
+  <div class="body">
+
 
   <h2>Log In</h2>
   
@@ -9,7 +31,7 @@
     <dl>
       <dt>Username:</dt>
       <dd>
-        <input type="text" name="username" size="30" value="{{ .username }}">
+        <input type="text" name="username" size="30">
       </dd>
       
       <dt>Password:</dt>
@@ -19,3 +41,14 @@
       <input type="submit" id="login-button" value="Log In">
     </div>
   </form>
+
+  <div class="footer">
+    <span>¿Who Knows? &copy; 2009</span>
+    <a href="/about">About</a>
+  </div>
+</div>
+
+
+<script src="../javaScript/search_script.js" type="module"></script>
+</body>
+</html>
