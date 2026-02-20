@@ -1,6 +1,3 @@
-
-
-
 export function callSearchRestApi(query) {
     return fetch(`/api/search?q=${encodeURIComponent(query)}`)
         .then(response => {
@@ -14,3 +11,4 @@ export function callSearchRestApi(query) {
             throw error;
         });
 }
+

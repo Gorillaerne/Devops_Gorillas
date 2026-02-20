@@ -1,52 +1,55 @@
 <!doctype html>
 <html lang="da">
+
 <head>
   <meta charset="utf-8">
   <title>Who knows?!?!</title>
   <link rel="stylesheet" href="..\style.css">
 </head>
+
 <body>
 
-<div class="page">
-  <div class="navigation">
-    <nav>
-      <h1>
-        <a href="/">¿Who Knows?</a>
-      </h1>
-      <a id="nav-login" href="/login">Log in</a>
-      <a id="nav-register" href="/register">Register</a>
-    </nav>
-  </div>
+  <div class="page">
+    <div class="navigation">
+      <nav>
+        <h1>
+          <a href="/">¿Who Knows?</a>
+        </h1>
+        <a id="nav-login" href="/login">Log in</a>
+        <a id="nav-register" href="/register">Register</a>
+      </nav>
+    </div>
 
-  <div class="body">
+    <div class="body">
 
-<h2>Sign Up</h2>
+      <h2>Sign Up</h2>
 
-<div class="error"><strong></strong></div>
+      <div class="error"><strong></strong></div>
 
-<form action="/api/register" method="POST">
-  <dl>
-    <dt>Username:
-    <dd><input type="text" name="username" size="30">
+      <form action="/api/register" method="POST">
+        <dl>
+          <dt>Username:
+          <dd><input type="text" name="username" size="30">
 
-    <dt>E-Mail:
-    <dd><input type="text" name="email" size="30">
-    <dt>Password:
-    <dd><input type="password" name="password" size="30">
-    <dt>Password <small>(repeat)</small>:
-    <dd><input type="password" name="password2" size="30">
-  </dl>
-  <div class="actions"><input type="submit" value="Sign Up"></div>
-</form>
-  
-
-  <div class="footer">
-    <span>¿Who Knows? &copy; 2026</span>
-    <a href="/about">About</a>
-  </div>
-</div>
+          <dt>E-Mail:
+          <dd><input type="text" name="email" size="30">
+          <dt>Password:
+          <dd><input type="password" name="password" size="30">
+          <dt>Password <small>(repeat)</small>:
+          <dd><input type="password" name="password2" size="30">
+        </dl>
+        <div class="actions"><input type="submit" value="Sign Up"></div>
+      </form>
 
 
-<script src="../javaScript/search_script.js" type="module"></script>
+      <div class="footer">
+        <span>¿Who Knows? &copy; 2026</span>
+        <a href="/about">About</a>
+      </div>
+    </div>
+
+
+    <script src="../javaScript/search_script.js" type="module"></script>
 </body>
+
 </html>

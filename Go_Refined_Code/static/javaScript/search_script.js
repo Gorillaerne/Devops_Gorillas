@@ -20,8 +20,6 @@ searchButton.addEventListener("click", function () {
         })
 })
 
-
-
 function renderSearchResults(searchResults) {
 
     resultsDiv.innerHTML = ""
