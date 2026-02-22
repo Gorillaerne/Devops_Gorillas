@@ -33,4 +33,14 @@ function logout() {
     window.location.href = "/";
 }
 
+export function createErrorElement(message) {
+    const div = document.createElement('div');
+    div.className = 'error';
+    const strong = document.createElement('strong');
+    strong.textContent = message; 
+    div.appendChild(strong);
+    
+    return div;
+}
+
 

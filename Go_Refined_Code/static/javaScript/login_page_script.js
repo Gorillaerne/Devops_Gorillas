@@ -1,9 +1,11 @@
 import { callLoginRestApi } from "./api_calls.js";
-import { checkIfLoggedIn } from "./reuseable_functions.js";
+import { checkIfLoggedIn, createErrorElement } from "./reuseable_functions.js";
 
 checkIfLoggedIn()
 
 const loginForm = document.getElementById('login-form');
+const body = document.getElementById("body")
+
 
 loginForm.addEventListener('submit', function(e) {
     e.preventDefault(); // Stop the browser from reloading the page
@@ -21,6 +23,6 @@ loginForm.addEventListener('submit', function(e) {
             window.location.href = "/"; // Redirect manually after success
         })
         .catch(err => {
-            alert("Login failed: " + err.message);
+            body.prepend(createErrorElement(err.message))
         });
 });

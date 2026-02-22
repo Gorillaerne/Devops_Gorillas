@@ -26,7 +26,9 @@ export function callLoginRestApi(username, password){
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json().then(errData => {
+                throw new Error(errData.message || `Login failed (${response.status})`);
+                });
             }
             return response.json();
         })
@@ -34,4 +36,22 @@ export function callLoginRestApi(username, password){
             console.error("Login error:", error);
             throw error;
         });
+}
+
+export function callRegisterRestApi(userData) {
+    return fetch(`/api/register`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errData => {
+                throw new Error(errData.message || `Registration failed (${response.status})`);
+            });
+        }
+        return response.json();
+    });
 }
