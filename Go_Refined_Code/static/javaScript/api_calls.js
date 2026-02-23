@@ -13,6 +13,7 @@ export function callSearchRestApi(query) {
 }
 
 
+
 export function callLoginRestApi(username, password){
     return fetch(`/api/login`,{
         method: 'POST',
