@@ -7,13 +7,24 @@ on:
     branches: [ dev ]
 
 jobs:
+  go-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v9.2.0
+        with:
+          working-directory: ./Go_Refined_Code
+          args: --config=./linters/.golangci.yml
+
   build:
     runs-on: ubuntu-latest
-
+    needs: go-lint  # This ensures build runs only if go-lint passes
     defaults:
       run:
         working-directory: ./Go_Refined_Code
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,8 +45,5 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
-      - name: Run linter
-        uses: golangci/golangci-lint-action@v6
-        with:
-          working-directory: ./Go_Refined_Code
-          args: --config=./linters/.golangci.yml
+      - name: Build
+        run: go build ./...
