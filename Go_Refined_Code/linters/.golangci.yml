@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 
 run:
   timeout: 5m
@@ -14,7 +14,7 @@ linters:
     - gosec
     - misspell
     - bodyclose
-  disable: [] # Add linters here if you want to explicitly disable any
+  disable: [] # optional: add linters you want to disable
 
 formatters:
   enable:
@@ -24,4 +24,4 @@ formatters:
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude: []
+  exclude-rules: [] # empty list is valid
