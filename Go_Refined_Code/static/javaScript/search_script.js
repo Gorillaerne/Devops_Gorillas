@@ -1,10 +1,11 @@
 import { callSearchRestApi } from "./api_calls.js"
+import { checkIfLoggedIn } from "./reuseable_functions.js"
 
 const searchButton = document.getElementById("search-button")
 const searchInput = document.getElementById("search-input")
 const resultsDiv = document.getElementById("results")
 
-
+checkIfLoggedIn() 
 
 
 searchButton.addEventListener("click", function () {
@@ -19,8 +20,6 @@ searchButton.addEventListener("click", function () {
             console.error(error)
         })
 })
-
-
 
 function renderSearchResults(searchResults) {
 
