@@ -34,4 +34,4 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
-          args: --config=./linters/golangci.yml
+          args: --config=./Go_Refined_Code/linters/.golangci.yml
