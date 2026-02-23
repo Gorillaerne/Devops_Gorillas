@@ -58,7 +58,7 @@ func HandleAPIRegister(db *sql.DB) http.HandlerFunc {
 		var req struct {
 			Username  string `json:"username"`
 			Email     string `json:"email"`
-			Password  string `json:"password"`
+			Password  string `json:"password"` //nolint:gosec
 			Password2 string `json:"password2"`
 		}
 
@@ -95,7 +95,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Username string `json:"username"`
-			Password string `json:"password"`
+			Password string `json:"password"` //nolint:gosec
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

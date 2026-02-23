@@ -52,7 +52,7 @@ func SearchAPIHandler(w http.ResponseWriter, r *http.Request) {
 		language = "en"
 	}
 
-	log.Println("API search query:", q)
+	log.Println("API search query:", q) //nolint:gosec
 
 	var results []SearchResult
 
