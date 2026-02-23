@@ -5,11 +5,12 @@ import (
 	"devops_gorillas/database"
 	apiHandlers "devops_gorillas/handlers"
 	"fmt"
-	cors "github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
+
+	cors "github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 // Just for testing endpoints
@@ -30,8 +31,8 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/search", apiHandlers.SearchAPIHandler).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
-	api.HandleFunc("/register", apiHandlers.HandleApiRegister(database.DB)).Methods("POST")
-	api.HandleFunc("/login", apiHandlers.HandleApiLogin(database.DB)).Methods("POST")
+	api.HandleFunc("/register", apiHandlers.HandleAPIRegister(database.DB)).Methods("POST")
+	api.HandleFunc("/login", apiHandlers.HandleAPILogin(database.DB)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
 
 	// 4️⃣ Server
@@ -54,6 +55,6 @@ func main() {
 	}
 	log.Println("Server kører på http://localhost:8080")
 	// Use the srv instance to start the server
-	
+
 	log.Fatal(srv.ListenAndServe())
 }

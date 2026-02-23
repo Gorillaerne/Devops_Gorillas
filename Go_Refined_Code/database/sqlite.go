@@ -1,32 +1,34 @@
+// Package database to handle datasbase
 package database
 
 import (
 	"database/sql"
-	_ "github.com/glebarez/go-sqlite"
 	"log"
 	"os"
+
+	/* SQL import */
+	_ "github.com/glebarez/go-sqlite"
 	"github.com/joho/godotenv"
 )
 
-
+// DB connection to DB
 var DB *sql.DB
 
+// Connect - connection to DB
 func Connect() error {
-	
 
 	err := godotenv.Load()
-    if err != nil {
-        log.Println("No .env file found, using defaults or system environment")
-    }
-	
+	if err != nil {
+		log.Println("No .env file found, using defaults or system environment")
+	}
+
 	log.Println("Connecting to SQLite database...")
 
 	dbPath := os.Getenv("DATABASE_PATH")
-    if dbPath == "" {
-        dbPath = "data/Gorilla_whoknows.db" 
-    }
-	
-	
+	if dbPath == "" {
+		dbPath = "data/Gorilla_whoknows.db"
+	}
+
 	DB, err = sql.Open("sqlite", dbPath)
 	if err != nil {
 		return err
@@ -43,11 +45,15 @@ func Connect() error {
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
 
+	defer func() { _ = rows.Close() }()
 	for rows.Next() {
 		var table string
-		rows.Scan(&table)
+		if err := rows.Scan(&table); err != nil {
+			// Log the error and decide whether to continue or return
+			log.Printf("error scanning row: %v", err)
+			continue // or return err
+		}
 		log.Println("Found table:", table)
 	}
 

@@ -12,7 +12,9 @@ linters:
     - revive        
     - gosec        
     - misspell      
-    - bodyclose     
+    - bodyclose
+    - gofmt
+    - goimports     
 
 issues:
   exclude-use-default: false

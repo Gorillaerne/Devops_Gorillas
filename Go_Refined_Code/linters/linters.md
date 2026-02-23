@@ -8,7 +8,7 @@ echo "Running golangci-lint on all files..."
 # 1. Run the linter on the entire project (./...)
 # We use the --config flag to point to your specific path
 cd ./Go_Refined_Code/
-golangci-lint run --config=linters/.golangci.yml .
+golangci-lint run --config=linters/.golangci.yml ./...
 
 
 # 2. Capture the exit code
