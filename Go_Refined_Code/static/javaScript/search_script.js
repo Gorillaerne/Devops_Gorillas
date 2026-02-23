@@ -8,7 +8,7 @@ const resultsDiv = document.getElementById("results")
 checkIfLoggedIn() 
 
 
-searchButton.addEventListener("click", function () {
+searchButton.addEventListener("click", () => {
 
     const query = searchInput.value
 

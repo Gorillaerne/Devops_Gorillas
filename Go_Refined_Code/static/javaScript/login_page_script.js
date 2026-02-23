@@ -7,7 +7,7 @@ const loginForm = document.getElementById('login-form');
 const body = document.getElementById("body")
 
 
-loginForm.addEventListener('submit', function(e) {
+loginForm.addEventListener('submit', (e) => {
     e.preventDefault(); // Stop the browser from reloading the page
 
     // Grab the values using the IDs we just added

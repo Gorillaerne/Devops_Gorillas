@@ -1,9 +1,8 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
-    "include": [
-      "Go_Refined_Code/static/**/*.js"
-    ]
+    "include": ["Go_Refined_Code/static/**/*.js"],
+    "ignore": ["Go_Refined_Code/static/**/*.html"]
   },
   "linter": {
     "enabled": true,

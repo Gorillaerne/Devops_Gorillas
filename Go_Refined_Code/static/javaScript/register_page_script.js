@@ -1,4 +1,4 @@
-"use strict"
+
 
 import { callRegisterRestApi } from "./api_calls.js";
 import { checkIfLoggedIn, createErrorElement } from "./reuseable_functions.js";
@@ -10,7 +10,7 @@ const body = document.getElementById("body")
 checkIfLoggedIn()
 
 if (registerForm) {
-    registerForm.addEventListener('submit', function (e) {
+    registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const userData = {
@@ -25,7 +25,7 @@ if (registerForm) {
         }
 
         callRegisterRestApi(userData)
-            .then(data => {
+            .then(_data => {
                 alert("Account created! Please log in.");
                 window.location.href = "/login";
             })
