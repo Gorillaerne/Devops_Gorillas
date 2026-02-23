@@ -14,7 +14,6 @@ linters:
     - gosec
     - misspell
     - bodyclose
-  disable: [] # optional: add linters you want to disable
 
 formatters:
   enable:
@@ -24,4 +23,3 @@ formatters:
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules: [] # empty list is valid
