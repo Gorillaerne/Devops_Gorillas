@@ -1,3 +1,4 @@
+version: 2
 run:
   timeout: 5m
   tests: true
@@ -13,8 +14,10 @@ linters:
     - gosec        
     - misspell      
     - bodyclose
+formatters:
+  enable:
     - gofmt
-    - goimports     
+    - goimports
 
 issues:
   exclude-use-default: false

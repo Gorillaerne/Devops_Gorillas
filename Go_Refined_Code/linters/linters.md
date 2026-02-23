@@ -1,5 +1,8 @@
 ## 🛡️ Go Linter Pre-commit Setup
 
+Download linter
+-- go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.9.0
+
 We use `golangci-lint` to ensure code quality. This hook runs automatically every time you try to commit code. If it finds issues, the commit will be blocked.
 ``#!/bin/sh
 
