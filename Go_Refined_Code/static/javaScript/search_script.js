@@ -1,10 +1,11 @@
 import { callSearchRestApi } from "./api_calls.js"
+import { checkIfLoggedIn } from "./reuseable_functions.js"
 
 const searchButton = document.getElementById("search-button")
 const searchInput = document.getElementById("search-input")
 const resultsDiv = document.getElementById("results")
 
-
+checkIfLoggedIn() 
 
 
 searchButton.addEventListener("click", function () {
@@ -13,14 +14,12 @@ searchButton.addEventListener("click", function () {
 
     callSearchRestApi(query)
         .then(searchResults => {
-            renderSearchResults(searchResults)
+            renderSearchResults(searchResults.data)
         })
         .catch(error => {
             console.error(error)
         })
 })
-
-
 
 function renderSearchResults(searchResults) {
 
@@ -31,7 +30,7 @@ function renderSearchResults(searchResults) {
         const searchResultDiv = document.createElement("div")
         const searchResultH2 = document.createElement("H2")
         const searchResultA = document.createElement("a")
-        searchResultA.textContent = searchResult.Title
+        searchResultA.textContent = searchResult.title
         searchResultA.classList.add("search-result-title")
         searchResultA.href = searchResult.URL
         searchResultH2.appendChild(searchResultA)

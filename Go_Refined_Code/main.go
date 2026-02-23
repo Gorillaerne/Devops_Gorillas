@@ -28,12 +28,11 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/search", apiHandlers.SearchAPIHandler).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
-	api.HandleFunc("/register", homeHandler).Methods("POST")
-	api.HandleFunc("/login", homeHandler).Methods("POST")
+	api.HandleFunc("/register", apiHandlers.HandleApiRegister(database.DB)).Methods("POST")
+	api.HandleFunc("/login", apiHandlers.HandleApiLogin(database.DB)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
 
 	// 4️⃣ Server
-	log.Println("Server kører på http://localhost:8080")
 	r.PathPrefix("/static/").Handler(
 		http.StripPrefix("/static/",
 			http.FileServer(http.Dir("static"))),
@@ -45,4 +44,5 @@ func main() {
 
 	http.ListenAndServe(":8080",
 		cors.CORS(originsOk, headersOk, methodsOk)(r))
+		log.Println("Server kører på http://localhost:8080")
 }
