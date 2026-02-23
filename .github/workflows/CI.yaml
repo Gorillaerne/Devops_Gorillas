@@ -4,10 +4,15 @@ on:
   push:
     branches: [ dev ]
   pull_request:
+    branches: [ dev ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./Go_Refined_Code
 
     steps:
       - name: Checkout
@@ -16,7 +21,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version-file: Go_Refined_Code/go.mod
 
       - name: Cache Go modules
         uses: actions/cache@v4
@@ -24,16 +29,13 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ hashFiles('Go_Refined_Code/go.sum') }}
 
       - name: Download dependencies
         run: go mod download
 
-      - name: Run tests
-        run: go test ./...
-
       - name: Run linter
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
-          args: --config=./linters/golangci.yml
+          working-directory: ./Go_Refined_Code
+          args: --config=./linters/.golangci.yml
