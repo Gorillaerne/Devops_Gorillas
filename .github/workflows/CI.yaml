@@ -35,7 +35,7 @@ jobs:
         run: go mod download
 
       - name: Run linter
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9.2
         with:
           working-directory: ./Go_Refined_Code
           args: --config=./linters/.golangci.yml
