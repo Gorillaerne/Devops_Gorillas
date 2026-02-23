@@ -41,6 +41,7 @@ func main() {
 	headersOk := cors.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	originsOk := cors.AllowedOrigins([]string{"*"})
 	methodsOk := cors.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+	
 
 	http.ListenAndServe(":8080",
 		cors.CORS(originsOk, headersOk, methodsOk)(r))
