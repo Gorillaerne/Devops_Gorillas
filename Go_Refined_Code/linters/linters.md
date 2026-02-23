@@ -9,7 +9,7 @@ echo "Running golangci-lint on all files..."
 # We use the --config flag to point to your specific path
 cd ./Go_Refined_Code/
 golangci-lint run --config=linters/.golangci.yml .
-
+ 
 
 # 2. Capture the exit code
 PASS=$?
