@@ -10,13 +10,14 @@ require (
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/glebarez/go-sqlite v1.22.0 // indirect
-	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
+	github.com/glebarez/go-sqlite v1.22.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
+	github.com/golangci/golangci-lint v1.64.8
 	github.com/google/uuid v1.5.0 // indirect
-	github.com/gorilla/handlers v1.5.2 // indirect
+	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.4.0 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/crypto v0.48.0 // indirect
@@ -25,5 +26,4 @@ require (
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.7.2 // indirect
 	modernc.org/sqlite v1.28.0 // indirect
-	github.com/golangci/golangci-lint/cmd/golangci-lint v1.64.2
 )
