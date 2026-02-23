@@ -1,4 +1,4 @@
-// Package handlers authApi
+
 package handlers
 
 import (
