@@ -42,7 +42,6 @@ func main() {
 	originsOk := cors.AllowedOrigins([]string{"*"})
 	methodsOk := cors.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
 	
-
 	http.ListenAndServe(":8080",
 		cors.CORS(originsOk, headersOk, methodsOk)(r))
 		log.Println("Server kører på http://localhost:8080")
