@@ -28,7 +28,11 @@ Config: `biome.json`
 brew install biome@2.4.4
 
 # Windows
-choco install biome --version 2.4.4
+Invoke-WebRequest -Uri "https://github.com/biomejs/biome/releases/download/@biomejs/biome@2.4.4/biome-win32-x64.exe" -OutFile "biome.exe"
+
+New-Item -ItemType Directory -Path "$HOME\bin" -Force
+Move-Item .\biome.exe "$HOME\bin\biome.exe"
+[Environment]::SetEnvironmentVariable("Path", "$env:Path;$HOME\bin", "User")
 
 # Run manually
 biome lint ./Go_Refined_Code/static/javaScript/
