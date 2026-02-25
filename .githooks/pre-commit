@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# ─── Go Linter ───────────────────────────────────────────────
+echo "Running golangci-lint..."
+
+cd ./Go_Refined_Code/
+golangci-lint run --config=linters/.golangci.yml ./...
+GOLINT=$?
+cd ..
+
+if [ $GOLINT -ne 0 ]; then
+  echo "-------------------------------------------------------"
+  echo "Linter failed! Please fix the issues above before committing."
+  echo "Note: This check scans ALL files, not just your changes."
+  echo "-------------------------------------------------------"
+  exit 1
+fi
+
+echo "golangci-lint passed."
+
+# ─── JavaScript Linter ───────────────────────────────────────
+echo "Running Biome..."
+
+if [ "$(uname)" = "Darwin" ]; then
+  biome lint ./Go_Refined_Code/static/javaScript/
+else
+  biome.exe lint ./Go_Refined_Code/static/javaScript/
+fi
+
+BIOME=$?
+
+if [ $BIOME -ne 0 ]; then
+  echo "Biome failed. Commit blocked."
+  exit 1
+fi
+
+echo "Biome passed."
+
+# ─── All checks passed ───────────────────────────────────────
+echo "All checks passed. Proceeding with commit."
+exit 0

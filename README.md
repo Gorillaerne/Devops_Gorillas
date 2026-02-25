@@ -14,6 +14,7 @@ Opgraderingen blev udført automatisk ved hjælp af værktøjet `2to3`, som hån
 ## Project Update: Migration & Framework Integration
 **Date:** 05/02/2026
 
+
 ---
 
 ### Step 1: Structural Refactoring

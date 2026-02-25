@@ -1,129 +1,146 @@
+// Package handlers authApi
 package handlers
 
 import (
-	"crypto/md5"
 	"database/sql"
-	"encoding/hex"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var jwtKey = []byte(os.Getenv("JWT_SECRET")) // In production, use os.Getenv("JWT_SECRET")
 
+// Claims struct that contains the userToken
 type Claims struct {
-    UserID int `json:"user_id"`
-    jwt.RegisteredClaims
+	UserID int `json:"user_id"`
+	jwt.RegisteredClaims
 }
 
-
-
-
-
-
 // Helper: Hash password (MD5 to match your old DB)
-func hashPassword(password string) string {
-	hash := md5.Sum([]byte(password))
-	return hex.EncodeToString(hash[:])
+func hashPassword(password string) (string, error) {
+	// GenerateFromPassword handles salting and hashing automatically
+	// Cost of 10-14 is usually a good balance of speed vs security
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
 }
 
 // Helper: Verify password
-func verifyPassword(storedHash, password string) bool {
-	return storedHash == hashPassword(password)
+func verifyPassword(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
 
 // Helper to send JSON responses consistently
 func sendJSON(w http.ResponseWriter, code int, message string) {
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(code)
-    json.NewEncoder(w).Encode(AuthResponse{
-        StatusCode: code,
-        Message:    message,
-    })
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	err := json.NewEncoder(w).Encode(AuthResponse{
+		StatusCode: code,
+		Message:    message,
+	})
+	if err != nil {
+		// Log the error because the client might not have received the JSON
+		log.Printf("sendJSON: failed to encode response: %v", err)
+	}
 }
 
 // --- Handlers ---
 
-// POST /api/register
-func HandleApiRegister(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        var req struct {
-            Username  string `json:"username"`
-            Email     string `json:"email"`
-            Password  string `json:"password"`
-            Password2 string `json:"password2"`
-        }
+// HandleAPIRegister POST /api/register
+func HandleAPIRegister(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			Username  string `json:"username"`
+			Email     string `json:"email"`
+			Password  string `json:"password"` //nolint:gosec
+			Password2 string `json:"password2"`
+		}
 
-        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-            sendJSON(w, http.StatusBadRequest, "Invalid JSON body")
-            return
-        }
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			sendJSON(w, http.StatusBadRequest, "Invalid JSON body")
+			return
+		}
 
-        if req.Password != req.Password2 {
-            sendJSON(w, http.StatusUnprocessableEntity, "Passwords do not match")
-            return
-        }
+		if req.Password != req.Password2 {
+			sendJSON(w, http.StatusUnprocessableEntity, "Passwords do not match")
+			return
+		}
 
-        hashed := hashPassword(req.Password)
-        _, err := db.Exec("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
-            req.Username, req.Email, hashed)
-        
-        if err != nil {
-            sendJSON(w, http.StatusConflict, "User already exists or DB error")
-            return
-        }
+		hashed, err := hashPassword(req.Password)
+		if err != nil {
+			sendJSON(w, http.StatusInternalServerError, "Internal server error")
+			return
+		}
 
-        sendJSON(w, http.StatusCreated, "User created successfully")
-    }
+		_, err = db.Exec("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+			req.Username, req.Email, hashed)
+
+		if err != nil {
+			sendJSON(w, http.StatusConflict, "User already exists or DB error")
+			return
+		}
+
+		sendJSON(w, http.StatusCreated, "User created successfully")
+	}
 }
 
-// POST /api/login
-func HandleApiLogin(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        var req struct {
-            Username string `json:"username"`
-            Password string `json:"password"`
-        }
+// HandleAPILogin POST /api/login
+func HandleAPILogin(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			Username string `json:"username"`
+			Password string `json:"password"` //nolint:gosec
+		}
 
-        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-            sendJSON(w, http.StatusBadRequest, "Invalid JSON")
-            return
-        }
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			sendJSON(w, http.StatusBadRequest, "Invalid JSON")
+			return
+		}
 
-        var userID int
-        var hashedPw string
-        err := db.QueryRow("SELECT id, password FROM users WHERE username = ?", req.Username).Scan(&userID, &hashedPw)
+		var userID int
+		var hashedPw string
+		err := db.QueryRow("SELECT id, password FROM users WHERE username = ?", req.Username).Scan(&userID, &hashedPw)
 
-        if err == sql.ErrNoRows || !verifyPassword(hashedPw, req.Password) {
-            sendJSON(w, http.StatusUnauthorized, "Invalid credentials")
-            return
-        }
+		if err == sql.ErrNoRows || !verifyPassword(hashedPw, req.Password) {
+			sendJSON(w, http.StatusUnauthorized, "Invalid credentials")
+			return
+		}
 
-        // Create JWT
-        expirationTime := time.Now().Add(24 * time.Hour)
-        claims := &Claims{
-            UserID: userID,
-            RegisteredClaims: jwt.RegisteredClaims{
-                ExpiresAt: jwt.NewNumericDate(expirationTime),
-            },
-        }
+		// Create JWT
+		expirationTime := time.Now().Add(24 * time.Hour)
+		claims := &Claims{
+			UserID: userID,
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(expirationTime),
+			},
+		}
 
-        token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-        tokenString, err := token.SignedString(jwtKey)
-        if err != nil {
-            sendJSON(w, http.StatusInternalServerError, "Error generating token")
-            return
-        }
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString(jwtKey)
+		if err != nil {
+			sendJSON(w, http.StatusInternalServerError, "Error generating token")
+			return
+		}
 
-        // Return token in the JSON body
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(AuthResponse{
-            StatusCode: 200,
-            Message:    "Login successful",
-            Token:      tokenString,
-        })
-    }
+		w.Header().Set("Content-Type", "application/json")
+		// It is good practice to set the status code explicitly before encoding
+		w.WriteHeader(http.StatusOK)
+
+		err = json.NewEncoder(w).Encode(AuthResponse{
+			StatusCode: 200,
+			Message:    "Login successful",
+			Token:      tokenString,
+		})
+
+		if err != nil {
+			// We log it because we can't send a new HTTP error once encoding starts
+			log.Printf("authApi: failed to encode login response: %v", err)
+		}
+	}
 }
