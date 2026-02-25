@@ -8,3 +8,5 @@
 - [ ] Documentation
 - [ ] Fixed bugs
 - [ ] Added functionality
+- [ ] Refactoring
+- [ ] CI/CD
