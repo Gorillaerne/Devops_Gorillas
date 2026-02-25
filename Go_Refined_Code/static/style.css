@@ -58,10 +58,10 @@ nav h1, nav a {
 }
 
 input {
-    width: 85%;
+    width: 85vw;
     padding: 10px;
     margin: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #3cff00;
     border-radius: 5px;
 }
 
