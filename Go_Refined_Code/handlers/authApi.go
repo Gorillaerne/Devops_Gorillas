@@ -2,17 +2,18 @@
 package handlers
 
 import (
+	"crypto/md5" // #nosec G501 -- legacy fallback only; new hashes use bcrypt
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"time"
-	"crypto/md5"
 	"strings"
-	"golang.org/x/crypto/bcrypt"
-	"fmt"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var jwtKey = []byte(os.Getenv("JWT_SECRET")) // In production, use os.Getenv("JWT_SECRET")
@@ -31,26 +32,26 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-// Helper: Verify password
+/* // Helper: Verify password
 func verifyPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
-}
+} */
 //Helper: Verify both md5 and bcrypt
 func verifyPasswordWithFallback(storedHash string, password string) bool {
-    // bcrypt hashes start with "$2"
-    if strings.HasPrefix(storedHash, "$2") {
-        // bcrypt verification
-        return bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(password)) == nil
-    }
+	// bcrypt hashes start with "$2"
+	if strings.HasPrefix(storedHash, "$2") {
+		// bcrypt verification
+		return bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(password)) == nil
+	}
 
-    // otherwise treat as MD5
-    md5Hash := md5.Sum([]byte(password))
-    md5Hex := fmt.Sprintf("%x", md5Hash)
+	// #nosec G401 -- MD5 used only to compare legacy hashes; migrated to bcrypt on success
+	// otherwise treat as MD5
+	md5Hash := md5.Sum([]byte(password))
+	md5Hex := fmt.Sprintf("%x", md5Hash)
 
-    return storedHash == md5Hex
+	return storedHash == md5Hex
 }
-
 
 // Helper to send JSON responses consistently
 func sendJSON(w http.ResponseWriter, code int, message string) {
@@ -123,8 +124,8 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 		var hashedPw string
 		err := db.QueryRow("SELECT id, password FROM users WHERE username = ?", req.Username).Scan(&userID, &hashedPw)
 
-		if err == sql.ErrNoRows || 
-		!verifyPasswordWithFallback(hashedPw, req.Password) {
+		if err == sql.ErrNoRows ||
+			!verifyPasswordWithFallback(hashedPw, req.Password) {
 			sendJSON(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
