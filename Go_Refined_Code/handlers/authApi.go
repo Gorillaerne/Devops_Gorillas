@@ -112,7 +112,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Username string `json:"username"`
-			Password string `json:"psw"`
+			Psw      string `json:"psw"`
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -125,7 +125,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 		err := db.QueryRow("SELECT id, password FROM users WHERE username = ?", req.Username).Scan(&userID, &hashedPw)
 
 		if err == sql.ErrNoRows ||
-			!verifyPasswordWithFallback(hashedPw, req.Password) {
+			!verifyPasswordWithFallback(hashedPw, req.Psw) {
 			sendJSON(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
