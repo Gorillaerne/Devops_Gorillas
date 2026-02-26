@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	"crypto/md5"
+	"strings"
 	"golang.org/x/crypto/bcrypt"
-
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -35,6 +36,21 @@ func verifyPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
+//Helper: Verify both md5 and bcrypt
+func verifyPasswordWithFallback(storedHash string, password string) bool {
+    // bcrypt hashes start with "$2"
+    if strings.HasPrefix(storedHash, "$2") {
+        // bcrypt verification
+        return bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(password)) == nil
+    }
+
+    // otherwise treat as MD5
+    md5Hash := md5.Sum([]byte(password))
+    md5Hex := fmt.Sprintf("%x", md5Hash)
+
+    return storedHash == md5Hex
+}
+
 
 // Helper to send JSON responses consistently
 func sendJSON(w http.ResponseWriter, code int, message string) {
@@ -95,7 +111,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Username string `json:"username"`
-			Password string `json:"password"` //nolint:gosec
+			Password string `json:"password"`
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -107,7 +123,8 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 		var hashedPw string
 		err := db.QueryRow("SELECT id, password FROM users WHERE username = ?", req.Username).Scan(&userID, &hashedPw)
 
-		if err == sql.ErrNoRows || !verifyPassword(hashedPw, req.Password) {
+		if err == sql.ErrNoRows || 
+		!verifyPasswordWithFallback(hashedPw, req.Password) {
 			sendJSON(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
