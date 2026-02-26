@@ -21,7 +21,7 @@ export function callLoginRestApi(username, password){
         },
         body: JSON.stringify({
             username: username,
-            password: password
+            psw: password
         })
     })
         .then(response => {
