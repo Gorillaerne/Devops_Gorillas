@@ -8,7 +8,8 @@ on:
       - "v*.*.*"
 
 env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/go-backend
+  BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/go-backend
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/frontend-proxy
 
 jobs:
   build-and-push:
@@ -25,14 +26,29 @@ jobs:
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build image
+      - name: Build images
         run: |
+          TAG=sha-$(git rev-parse --short HEAD)
+          REF=${{ github.ref_name }}
+
           docker build \
-            -t ${{ env.IMAGE }}:sha-$(git rev-parse --short HEAD) \
-            -t ${{ env.IMAGE }}:${{ github.ref_name }} \
+            -t ${{ env.BACKEND_IMAGE }}:$TAG \
+            -t ${{ env.BACKEND_IMAGE }}:$REF \
             .
 
-      - name: Push image
+          docker build \
+            -f Dockerfile.nginx \
+            -t ${{ env.FRONTEND_IMAGE }}:$TAG \
+            -t ${{ env.FRONTEND_IMAGE }}:$REF \
+            .
+
+      - name: Push images
         run: |
-          docker push ${{ env.IMAGE }}:sha-$(git rev-parse --short HEAD)
-          docker push ${{ env.IMAGE }}:${{ github.ref_name }}
+          TAG=sha-$(git rev-parse --short HEAD)
+          REF=${{ github.ref_name }}
+
+          docker push ${{ env.BACKEND_IMAGE }}:$TAG
+          docker push ${{ env.BACKEND_IMAGE }}:$REF
+
+          docker push ${{ env.FRONTEND_IMAGE }}:$TAG
+          docker push ${{ env.FRONTEND_IMAGE }}:$REF

@@ -7,7 +7,7 @@ import (
 	"os"
 
 	/* SQL import */
-	_ "github.com/glebarez/go-sqlite"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
@@ -22,14 +22,14 @@ func Connect() error {
 		log.Println("No .env file found, using defaults or system environment")
 	}
 
-	log.Println("Connecting to SQLite database...")
+	log.Println("Connecting to MySQL database...")
 
-	dbPath := os.Getenv("DATABASE_PATH")
-	if dbPath == "" {
-		dbPath = "data/Gorilla_whoknows.db"
+	dsn := os.Getenv("DATABASE_PATH")
+	if dsn == "" {
+		log.Fatal("DATABASE_PATH environment variable is not set")
 	}
 
-	DB, err = sql.Open("sqlite", dbPath)
+	DB, err = sql.Open("mysql", dsn)
 	if err != nil {
 		return err
 	}
@@ -38,10 +38,10 @@ func Connect() error {
 		return err
 	}
 
-	log.Println("✅ SQLite database connected")
+	log.Println("✅ MySQL database connected")
 
-	// 🔍 LIST TABELLER
-	rows, err := DB.Query(`SELECT name FROM sqlite_master WHERE type='table'`)
+	// List tables
+	rows, err := DB.Query(`SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()`)
 	if err != nil {
 		return err
 	}
