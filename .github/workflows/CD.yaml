@@ -9,8 +9,8 @@ on:
       - "v*.*.*"
 
 env:
-  BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/go-backend
-  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/frontend-proxy
+  BACKEND_IMAGE: ghcr.io/gorillaerne/go-backend
+  FRONTEND_IMAGE: ghcr.io/gorillaerne/frontend-proxy
 
 jobs:
   build-and-push:
@@ -35,13 +35,15 @@ jobs:
           docker build \
             -t ${{ env.BACKEND_IMAGE }}:$TAG \
             -t ${{ env.BACKEND_IMAGE }}:$REF \
-            .
+            -t ${{ env.BACKEND_IMAGE }}:latest \
+            ./Go_Refined_Code
 
           docker build \
-            -f Dockerfile.nginx \
+            -f Go_Refined_Code/Dockerfile.nginx \
             -t ${{ env.FRONTEND_IMAGE }}:$TAG \
             -t ${{ env.FRONTEND_IMAGE }}:$REF \
-            .
+            -t ${{ env.FRONTEND_IMAGE }}:latest \
+            ./Go_Refined_Code
 
       - name: Push images
         run: |
@@ -50,6 +52,8 @@ jobs:
 
           docker push ${{ env.BACKEND_IMAGE }}:$TAG
           docker push ${{ env.BACKEND_IMAGE }}:$REF
+          docker push ${{ env.BACKEND_IMAGE }}:latest
 
           docker push ${{ env.FRONTEND_IMAGE }}:$TAG
           docker push ${{ env.FRONTEND_IMAGE }}:$REF
+          docker push ${{ env.FRONTEND_IMAGE }}:latest
