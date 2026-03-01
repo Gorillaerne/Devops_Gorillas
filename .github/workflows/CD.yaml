@@ -35,13 +35,13 @@ jobs:
           docker build \
             -t ${{ env.BACKEND_IMAGE }}:$TAG \
             -t ${{ env.BACKEND_IMAGE }}:$REF \
-            .
+            ./Go_Refined_Code
 
           docker build \
             -f Dockerfile.nginx \
             -t ${{ env.FRONTEND_IMAGE }}:$TAG \
             -t ${{ env.FRONTEND_IMAGE }}:$REF \
-            .
+            ./Go_Refined_Code
 
       - name: Push images
         run: |
