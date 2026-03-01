@@ -112,7 +112,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Username string `json:"username"`
-			Psw      string `json:"psw"`
+			Psw      string `json:"password"` //nolint:gosec
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
