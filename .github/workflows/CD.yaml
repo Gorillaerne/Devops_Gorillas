@@ -9,8 +9,8 @@ on:
       - "v*.*.*"
 
 env:
-  BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/go-backend
-  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/frontend-proxy
+  BACKEND_IMAGE: ghcr.io/gorillaerne/go-backend
+  FRONTEND_IMAGE: ghcr.io/gorillaerne/frontend-proxy
 
 jobs:
   build-and-push:
