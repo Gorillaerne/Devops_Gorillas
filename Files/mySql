@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `pages` (
   `last_updated` TIMESTAMP NULL DEFAULT NULL,
   `content` LONGTEXT NOT NULL,
   PRIMARY KEY (`title`),
-  UNIQUE KEY `uq_pages_url` (`url`)
+  UNIQUE KEY `uq_pages_url` (`url`(768))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
