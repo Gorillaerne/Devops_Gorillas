@@ -70,8 +70,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            cd devopsServer
-            cd Devops_Gorillas
-            cd Go_Refined_Code
+            cd /devopsServer/Devops_Gorillas/Go_Refined_Code
             docker compose pull
             docker compose up -d
