@@ -118,7 +118,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 
 		req := struct {
 			Username string
-			Password string
+			Password string //nolint:gosec
 		}{
 			Username: r.FormValue("username"),
 			Password: r.FormValue("password"),
