@@ -14,20 +14,15 @@ export function callSearchRestApi(query) {
 
 
 export function callLoginRestApi(username, password) {
-
-
-
-    const formData = new URLSearchParams();
-    formData.append("username", username);
-    formData.append("password", password)
-
-
     return fetch(`/api/login`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
         },
-        body: formData.toString()
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
     })
         .then(response => {
             if (!response.ok) {
