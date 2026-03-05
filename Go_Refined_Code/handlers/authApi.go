@@ -110,14 +110,18 @@ func HandleAPIRegister(db *sql.DB) http.HandlerFunc {
 // HandleAPILogin POST /api/login
 func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req struct {
-			Username string `json:"username"`
-			Psw      string `json:"password"` //nolint:gosec
+
+		if err := r.ParseForm(); err != nil {
+			sendJSON(w, http.StatusBadRequest, "Invalid form data")
+			return
 		}
 
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			sendJSON(w, http.StatusBadRequest, "Invalid JSON")
-			return
+		req := struct {
+			Username string
+			Password string //nolint:gosec
+		}{
+			Username: r.FormValue("username"),
+			Password: r.FormValue("password"),
 		}
 
 		var userID int
@@ -125,7 +129,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 		err := db.QueryRow("SELECT id, password FROM users WHERE username = ?", req.Username).Scan(&userID, &hashedPw)
 
 		if err == sql.ErrNoRows ||
-			!verifyPasswordWithFallback(hashedPw, req.Psw) {
+			!verifyPasswordWithFallback(hashedPw, req.Password) {
 			sendJSON(w, http.StatusUnauthorized, "Invalid credentials")
 			return
 		}
