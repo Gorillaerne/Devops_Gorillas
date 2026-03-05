@@ -111,17 +111,14 @@ func HandleAPIRegister(db *sql.DB) http.HandlerFunc {
 func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		if err := r.ParseForm(); err != nil {
-			sendJSON(w, http.StatusBadRequest, "Invalid form data")
-			return
+		var req struct {
+			Username string `json:"username"`
+			Password string `json:"password"` //nolint:gosec
 		}
 
-		req := struct {
-			Username string
-			Password string //nolint:gosec
-		}{
-			Username: r.FormValue("username"),
-			Password: r.FormValue("password"),
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			sendJSON(w, http.StatusBadRequest, "Invalid JSON body")
+			return
 		}
 
 		var userID int
