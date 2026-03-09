@@ -1,0 +1,147 @@
+basePath: /api
+definitions:
+  handlers.AuthResponse:
+    description: Standard API response
+    properties:
+      message:
+        type: string
+      statusCode:
+        type: integer
+      token:
+        type: string
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      message:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  handlers.SearchResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/handlers.SearchResult'
+        type: array
+    type: object
+  handlers.SearchResult:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: My service description
+  title: Rest api for Gorilla Search Engine
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a JWT token
+      parameters:
+      - description: Login payload
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Invalid JSON body
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "500":
+          description: Error generating token
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+      summary: Login
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with username, email and password
+      parameters:
+      - description: Register payload
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Invalid JSON body
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "422":
+          description: Passwords do not match
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /search:
+    get:
+      description: Searches the pages database by title and content
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - default: en
+        description: 'Language filter (default: en)'
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.SearchResponse'
+        "422":
+          description: Missing q parameter
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Search pages
+      tags:
+      - search
+swagger: "2.0"

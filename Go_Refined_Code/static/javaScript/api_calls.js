@@ -13,8 +13,8 @@ export function callSearchRestApi(query) {
 }
 
 
-export function callLoginRestApi(username, password){
-    return fetch(`/api/login`,{
+export function callLoginRestApi(username, password) {
+    return fetch("/api/login", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -27,7 +27,7 @@ export function callLoginRestApi(username, password){
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errData => {
-                throw new Error(errData.message || `Login failed (${response.status})`);
+                    throw new Error(errData.message || `Login failed (${response.status})`);
                 });
             }
             return response.json();
@@ -46,12 +46,12 @@ export function callRegisterRestApi(userData) {
         },
         body: JSON.stringify(userData)
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errData => {
-                throw new Error(errData.message || `Registration failed (${response.status})`);
-            });
-        }
-        return response.json();
-    });
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errData => {
+                    throw new Error(errData.message || `Registration failed (${response.status})`);
+                });
+            }
+            return response.json();
+        });
 }

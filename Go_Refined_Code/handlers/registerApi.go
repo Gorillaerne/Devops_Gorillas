@@ -16,6 +16,8 @@ type LoginRequest struct {
 }
 
 /* AuthResponse struct to handle responses */
+// AuthResponse is the standard API response envelope
+// @Description Standard API response
 type AuthResponse struct {
 	StatusCode int    `json:"statusCode"`
 	Message    string `json:"message"`
