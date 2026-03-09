@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # --- Your existing CI steps go here ---
+      - name: Run tests
+        run: |
+          echo "Run your tests here"
+
+      # This step only runs if something above failed
+      - name: Notify Discord on failure
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"embeds\": [{
+              \"title\": \"❌ CI Failed\",
+              \"description\": \"**Repo:** ${{ github.repository }}\n**Branch:** ${{ github.ref_name }}\n**Commit:** ${{ github.sha }}\n**Triggered by:** ${{ github.actor }}\",
+              \"color\": 15158332,
+              \"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+            }]
+          }" \
+          $DISCORD_WEBHOOK
