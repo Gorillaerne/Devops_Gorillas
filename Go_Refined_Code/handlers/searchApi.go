@@ -27,6 +27,17 @@ type ErrorResponse struct {
 }
 
 // SearchAPIHandler handles searching
+// SearchAPIHandler godoc
+// @Summary      Search pages
+// @Description  Searches the pages database by title and content
+// @Tags         search
+// @Produce      json
+// @Param        q        query  string  true   "Search query"
+// @Param        language query  string  false  "Language filter (default: en)"  default(en)
+// @Success      200  {object}  SearchResponse
+// @Failure      422  {object}  ErrorResponse  "Missing q parameter"
+// @Failure      500  {string}  string         "Internal server error"
+// @Router       /search [get]
 func SearchAPIHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 

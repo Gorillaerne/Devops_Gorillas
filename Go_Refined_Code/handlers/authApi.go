@@ -70,6 +70,19 @@ func sendJSON(w http.ResponseWriter, code int, message string) {
 // --- Handlers ---
 
 // HandleAPIRegister POST /api/register
+// HandleAPIRegister godoc
+// @Summary      Register a new user
+// @Description  Creates a new user account with username, email and password
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body body object true "Register payload" SchemaExample({"username":"john","email":"john@example.com","password":"secret","password2":"secret"})
+// @Success      201  {object}  AuthResponse
+// @Failure      400  {object}  AuthResponse "Invalid JSON body"
+// @Failure      409  {object}  AuthResponse "User already exists"
+// @Failure      422  {object}  AuthResponse "Passwords do not match"
+// @Failure      500  {object}  AuthResponse "Internal server error"
+// @Router       /register [post]
 func HandleAPIRegister(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
@@ -108,6 +121,18 @@ func HandleAPIRegister(db *sql.DB) http.HandlerFunc {
 }
 
 // HandleAPILogin POST /api/login
+// HandleAPILogin godoc
+// @Summary      Login
+// @Description  Authenticates a user and returns a JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body body object true "Login payload" SchemaExample({"username":"john","password":"secret"})
+// @Success      200  {object}  AuthResponse
+// @Failure      400  {object}  AuthResponse "Invalid JSON body"
+// @Failure      401  {object}  AuthResponse "Invalid credentials"
+// @Failure      500  {object}  AuthResponse "Error generating token"
+// @Router       /login [post]
 func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 

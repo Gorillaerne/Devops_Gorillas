@@ -11,13 +11,19 @@ import (
 
 	cors "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "devops_gorillas/docs"
 )
 
 // Just for testing endpoints
 func homeHandler(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintf(w, "test endpoints")
 }
-
+// @title           Rest api for Gorilla Search Engine
+// @version         1.0
+// @description     Rest api specification for Gorilla Search Engine
+// @host            localhost:8080
+// @BasePath        /api
 func main() {
 	// 1️⃣ Database
 	if err := database.Connect(); err != nil {
@@ -26,6 +32,8 @@ func main() {
 
 	// 3️⃣ Router
 	r := mux.NewRouter()
+
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
