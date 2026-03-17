@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # --- Your existing CI steps go here ---
+      - name: Run tests
+        run: |
+          echo "Run your tests here"
+
+      # Fires when CI fails
+      - name: Notify Discord on CI failure
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.CI_FAIL_DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"embeds\": [{
+              \"title\": \"❌ CI Failed\",
+              \"description\": \"**Repo:** ${{ github.repository }}\n**Branch:** ${{ github.ref_name }}\n**Commit:** \`${{ github.sha }}\`\n**Triggered by:** ${{ github.actor }}\",
+              \"color\": 15158332,
+              \"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+            }]
+          }" \
+          $DISCORD_WEBHOOK
+
+      # Fires when someone pushes to main
+      - name: Notify Discord on push to main
+        if: success() && github.ref == 'refs/heads/main'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.PUSH_MAIN_DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"embeds\": [{
+              \"title\": \"🚀 New push to main\",
+              \"description\": \"**Repo:** ${{ github.repository }}\n**Commit:** \`${{ github.sha }}\`\n**Pushed by:** ${{ github.actor }}\",
+              \"color\": 3066993,
+              \"url\": \"https://github.com/${{ github.repository }}/commit/${{ github.sha }}\"
+            }]
+          }" \
+          $DISCORD_WEBHOOK
