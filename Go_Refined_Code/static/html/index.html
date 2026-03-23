@@ -3,8 +3,11 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Who knows?!?!</title>
-  <link rel="stylesheet" href="..\style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>¿Who Knows?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
@@ -22,24 +25,24 @@
 
     <div class="body">
 
+      <div class="search-hero">
+        <span class="search-hero-eyebrow">Search Engine</span>
+        <h1 class="search-hero-title">¿Who Knows?</h1>
+        <p class="search-hero-sub">The search engine that keeps you guessing.</p>
 
-      <div>
-        <input id="search-input" placeholder="Search..." value="" />
-        <button id="search-button" type="button">Search</button>
+        <div class="search-bar-wrapper">
+          <input id="search-input" placeholder="Search for anything…" value="" autocomplete="off" />
+          <button id="search-button" type="button">Search</button>
+        </div>
       </div>
 
-
-      <div id="results">
-
-
-      </div>
+      <div id="results"></div>
 
       <div class="footer">
         <span>¿Who Knows? &copy; 2026</span>
         <a href="/about">About</a>
       </div>
     </div>
-
 
     <script src="../javaScript/search_script.js" type="module"></script>
   </div>
