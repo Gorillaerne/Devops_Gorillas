@@ -71,7 +71,7 @@ jobs:
           port: 22
           script: |
             set -euo pipefail
-            cd /Gorillaerne/Devops_Gorillas/Go_Refined_Code || exit 1
+            cd /Gorillaerne/Devops_Gorillas/Go_Refined_Code
             git fetch origin main
             git reset --hard origin/main
             docker compose pull
