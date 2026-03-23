@@ -3,8 +3,11 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Who knows?!?!</title>
-  <link rel="stylesheet" href="..\style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register — ¿Who Knows?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
@@ -21,28 +24,42 @@
     </div>
 
     <div class="body" id="body">
+      <div class="form-page">
+        <div class="form-container">
 
-      <h2>Sign Up</h2>
+          <h2>Create account.</h2>
+          <p class="form-sub">Join and start finding answers.</p>
+          <span class="accent-line"></span>
 
-      <form id="register-form">
-        <dl>
-          <dt>Username:</dt>
-          <dd><input type="text" id="reg-username" name="username" size="30" required></dd>
+          <form id="register-form">
+            <dl>
+              <div>
+                <dt>Username</dt>
+                <dd><input type="text" id="reg-username" name="username" size="30" placeholder="Choose a username" required></dd>
+              </div>
 
-          <dt>E-Mail:</dt>
-          <dd><input type="email" id="reg-email" name="email" size="30" required></dd>
+              <div>
+                <dt>E-Mail</dt>
+                <dd><input type="email" id="reg-email" name="email" size="30" placeholder="you@example.com" required></dd>
+              </div>
 
-          <dt>Password:</dt>
-          <dd><input type="password" id="reg-password" name="password" size="30" required></dd>
+              <div>
+                <dt>Password</dt>
+                <dd><input type="password" id="reg-password" name="password" size="30" placeholder="••••••••" required></dd>
+              </div>
 
-          <dt>Password <small>(repeat)</small>:</dt>
-          <dd><input type="password" id="reg-password-confirm" name="password2" size="30" required></dd>
-        </dl>
-        <div class="actions">
-          <input type="submit" id="register-button" value="Sign Up">
+              <div>
+                <dt>Password <small>(repeat)</small></dt>
+                <dd><input type="password" id="reg-password-confirm" name="password2" size="30" placeholder="••••••••" required></dd>
+              </div>
+            </dl>
+            <div class="actions">
+              <input type="submit" id="register-button" value="Sign Up">
+            </div>
+          </form>
+
         </div>
-      </form>
-
+      </div>
 
       <div class="footer">
         <span>¿Who Knows? &copy; 2026</span>
@@ -50,8 +67,8 @@
       </div>
     </div>
 
-
     <script src="../javaScript/register_page_script.js" type="module"></script>
+  </div>
 </body>
 
 </html>

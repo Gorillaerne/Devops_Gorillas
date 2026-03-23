@@ -2,8 +2,8 @@
 -- Generated from: whoknows.db
 -- Tables: users, pages
 
-CREATE DATABASE IF NOT EXISTS whoknows CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE whoknows;
+CREATE DATABASE IF NOT EXISTS whoknowsdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE whoknowsdb;
 
 -- ============================================================
 -- Table: users
