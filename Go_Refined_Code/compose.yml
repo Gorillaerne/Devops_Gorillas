@@ -18,7 +18,7 @@ services:
       retries: 5
     restart: unless-stopped
   go-backend:
-    image: ghcr.io/gorillaerne/go-backend:dev
+    image: ghcr.io/gorillaerne/go-backend:latest
     container_name: go-backend
     ports:
       - "127.0.0.1:8080:8080"
@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
 
   frontend-proxy:
-    image: ghcr.io/gorillaerne/frontend-proxy:dev
+    image: ghcr.io/gorillaerne/frontend-proxy:latest
     ports:
       - "127.0.0.1:8081:80"
     depends_on:
