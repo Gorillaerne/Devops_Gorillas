@@ -39,3 +39,4 @@ services:
       - go-backend
 volumes:
   mysql_data:
+    external: true
