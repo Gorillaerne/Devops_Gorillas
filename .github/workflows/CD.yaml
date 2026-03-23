@@ -70,6 +70,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            cd /devopsServer/Devops_Gorillas/Go_Refined_Code
+            set -euo pipefail
+            cd /Gorillaerne/Devops_Gorillas/Go_Refined_Code || exit 1
+            git fetch origin main
+            git reset --hard origin/main
             docker compose pull
             docker compose up -d
