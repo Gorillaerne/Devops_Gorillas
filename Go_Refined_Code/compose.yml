@@ -39,3 +39,5 @@ services:
       - go-backend
 volumes:
   mysql_data:
+    external: true
+    name: go_refined_code_mysql_data
