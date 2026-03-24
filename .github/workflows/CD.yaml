@@ -68,7 +68,7 @@ jobs:
           chmod 600 key.pem
 
       - name: 🚀 Deploy to server
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@b60142998894e495c513803efc6d5d72a72c968a
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
