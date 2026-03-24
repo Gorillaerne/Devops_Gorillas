@@ -60,14 +60,19 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-push   # ← This ensures it runs after build-and-push
+    needs: build-and-push
     steps:
+      - name: Write SSH key
+        run: |
+          echo "${{ secrets.SERVER_SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+
       - name: 🚀 Deploy to server
-        uses: appleboy/ssh-action@b60142998894e495c513803efc6d5d72a72c968a
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          key_path: key.pem
           port: 22
           script: |
             set -euo pipefail
