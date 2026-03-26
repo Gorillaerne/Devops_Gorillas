@@ -1,0 +1,36 @@
+name: Cleanup stale branches
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Every Monday at midnight
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Delete stale branches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch --prune
+
+          CUTOFF=$(date -d '2 weeks ago' +%s)
+          PROTECTED=("main" "dev")
+
+          for branch in $(git branch -r | grep 'origin/' | grep -v 'HEAD' | sed 's/origin\///'); do
+            if [[ " ${PROTECTED[@]} " =~ " ${branch} " ]]; then
+              continue
+            fi
+
+            LAST_COMMIT=$(git log -1 --format="%ct" origin/$branch)
+
+            if [ "$LAST_COMMIT" -lt "$CUTOFF" ]; then
+              echo "Deleting stale branch: $branch"
+              git push origin --delete $branch
+            fi
+          done
