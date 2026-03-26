@@ -1,0 +1,38 @@
+name: Discord Notification
+
+on:
+  workflow_run:
+    workflows: ["*"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  notify-failure:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Failure Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.CI_FAIL_DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{
+            "content": "❌ **Workflow Failed on Main**\n**Workflow:** ${{ github.event.workflow_run.name }}\n**Branch:** ${{ github.event.workflow_run.head_branch }}\n**Triggered by:** ${{ github.event.workflow_run.triggering_actor.login }}\n**Details:** ${{ github.event.workflow_run.html_url }}"
+          }' \
+          $DISCORD_WEBHOOK
+
+  notify-success:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Success Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.PUSH_MAIN_DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{
+            "content": "🚀 **Workflow Succeeded on Main**\n**Workflow:** ${{ github.event.workflow_run.name }}\n**Branch:** ${{ github.event.workflow_run.head_branch }}\n**Triggered by:** ${{ github.event.workflow_run.triggering_actor.login }}\n**Details:** ${{ github.event.workflow_run.html_url }}"
+          }' \
+          $DISCORD_WEBHOOK
