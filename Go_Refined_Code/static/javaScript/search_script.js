@@ -32,21 +32,11 @@ function renderSearchResults(searchResults) {
         const link = document.createElement("a")
         link.href = searchResult.URL
 
-        const urlSpan = document.createElement("span")
-        urlSpan.classList.add("result-url")
-        urlSpan.textContent = searchResult.URL
-
         const titleSpan = document.createElement("span")
         titleSpan.classList.add("result-title")
         titleSpan.textContent = searchResult.title
 
-        const snippetSpan = document.createElement("span")
-        snippetSpan.classList.add("result-snippet")
-        snippetSpan.textContent = searchResult.content
-
-        link.appendChild(urlSpan)
         link.appendChild(titleSpan)
-        link.appendChild(snippetSpan)
         item.appendChild(link)
         resultsDiv.appendChild(item)
     })
