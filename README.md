@@ -86,3 +86,15 @@ ssh azureuser@51.120.83.21
 All dynamic content is now handled on the client side.  
 Instead of using embedded template logic, we use **JavaScript to fetch data from the Go backend** and dynamically update the HTML pages.  
 This keeps the HTML files pure and static while still allowing real‑time, dynamic updates through API calls.
+
+### Automated MySQL Backups
+
+This project includes an automated backup solution for a MySQL database using a Linux server.
+
+The database is dumped using mysqldump
+Backups are compressed (.sql.gz) to save space
+Files are automatically uploaded to Google Drive via rclone
+Old backups are cleaned up (local + cloud retention)
+A cron job runs the backup daily
+
+This ensures reliable, offsite backups without manual intervention.
