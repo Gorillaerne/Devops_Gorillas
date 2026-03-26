@@ -1,5 +1,5 @@
 # Use official Go image as the build environment
-FROM golang:1.24-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
