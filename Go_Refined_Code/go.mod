@@ -1,6 +1,6 @@
 module devops_gorillas
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/go-sql-driver/mysql v1.9.3
@@ -14,5 +14,5 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gorilla/handlers v1.5.2
 	github.com/joho/godotenv v1.5.1
-	golang.org/x/crypto v0.48.0
+	golang.org/x/crypto v0.49.0
 )
