@@ -59,3 +59,17 @@ func Connect() error {
 
 	return nil
 }
+
+// PurgeMD5Users deletes all users whose password is not a bcrypt hash.
+// Bcrypt hashes always start with "$2", so anything else is a legacy MD5 hash.
+func PurgeMD5Users() {
+	result, err := DB.Exec("DELETE FROM users WHERE password NOT LIKE '$2%'")
+	if err != nil {
+		log.Printf("PurgeMD5Users: failed to delete legacy users: %v", err)
+		return
+	}
+	n, _ := result.RowsAffected()
+	if n > 0 {
+		log.Printf("PurgeMD5Users: removed %d legacy MD5 user(s)", n)
+	}
+}
