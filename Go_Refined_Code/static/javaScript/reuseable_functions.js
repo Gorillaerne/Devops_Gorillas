@@ -33,22 +33,56 @@ function logout() {
     window.location.href = "/";
 }
 
-export function createErrorElement(message) {
-    const div = document.createElement('div');
-    div.className = 'error';
-    const strong = document.createElement('strong');
-    strong.textContent = message;
-    div.appendChild(strong);
-    return div;
+const TOAST_DURATION = 4000;
+
+function getToastContainer() {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    return container;
 }
 
-export function createSuccessElement(message) {
-    const div = document.createElement('div');
-    div.className = 'success';
-    const strong = document.createElement('strong');
-    strong.textContent = message;
-    div.appendChild(strong);
-    return div;
+function showToast(message, type) {
+    const container = getToastContainer();
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+
+    const icon = document.createElement('span');
+    icon.className = 'toast__icon';
+    icon.textContent = type === 'success' ? '✓' : '✕';
+
+    const text = document.createElement('span');
+    text.className = 'toast__message';
+    text.textContent = message;
+
+    const close = document.createElement('button');
+    close.className = 'toast__close';
+    close.setAttribute('aria-label', 'Dismiss');
+    close.textContent = '×';
+
+    const progress = document.createElement('div');
+    progress.className = 'toast__progress';
+
+    toast.appendChild(icon);
+    toast.appendChild(text);
+    toast.appendChild(close);
+    toast.appendChild(progress);
+    container.appendChild(toast);
+
+    const dismiss = () => {
+        toast.classList.add('toast--out');
+        toast.addEventListener('animationend', () => toast.remove(), { once: true });
+    };
+
+    const timer = setTimeout(dismiss, TOAST_DURATION);
+    close.addEventListener('click', () => { clearTimeout(timer); dismiss(); });
 }
+
+export function showError(message) { showToast(message, 'error'); }
+export function showSuccess(message) { showToast(message, 'success'); }
 
 
