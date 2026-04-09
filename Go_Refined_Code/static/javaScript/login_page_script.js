@@ -1,5 +1,5 @@
 import { callLoginRestApi } from "./api_calls.js";
-import { checkIfLoggedIn, createErrorElement } from "./reuseable_functions.js";
+import { checkIfLoggedIn, createErrorElement, createSuccessElement } from "./reuseable_functions.js";
 
 checkIfLoggedIn()
 
@@ -17,12 +17,11 @@ loginForm.addEventListener('submit', (e) => {
     // Call your function (from the previous step)
     callLoginRestApi(userVal, passVal)
         .then(data => {
-            localStorage.setItem("token",data.token)
-
-            alert("Login Successful!");
-            window.location.href = "/"; // Redirect manually after success
+            localStorage.setItem("token", data.token);
+            body.prepend(createSuccessElement("Login successful! Redirecting..."));
+            setTimeout(() => { window.location.href = "/"; }, 1500);
         })
         .catch(err => {
-            body.prepend(createErrorElement(err.message))
+            body.prepend(createErrorElement(err.message));
         });
 });

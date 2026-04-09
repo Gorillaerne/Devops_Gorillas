@@ -18,6 +18,8 @@
   --accent-ring: rgba(200, 169, 110, 0.22);
   --error:       #C26060;
   --error-bg:    rgba(194, 96, 96, 0.09);
+  --success:     #4f9e6f;
+  --success-bg:  rgba(79, 158, 111, 0.09);
   --success:     #4FA87A;
   --success-bg:  rgba(79, 168, 122, 0.09);
   --radius-sm:   5px;
@@ -430,6 +432,16 @@ div.error {
   padding: 11px 15px;
   font-size: 13.5px;
   color: var(--error);
+  margin-bottom: 16px;
+}
+
+div.success {
+  background: var(--success-bg);
+  border: 1px solid rgba(79, 158, 111, 0.25);
+  border-radius: var(--radius);
+  padding: 11px 15px;
+  font-size: 13.5px;
+  color: var(--success);
   margin-bottom: 16px;
 }
 
