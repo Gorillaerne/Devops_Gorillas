@@ -1,100 +1,142 @@
-## 🐍 Opgradering af Backend (Python 2 til 3)
+# ¿Who Knows?
 
-Som en del af moderniseringen af projektet har vi opgraderet kildekoden fra Python 2 til Python 3. Dette sikrer, at vi overholder de nyeste standarder for sikkerhed, performance og syntaks.
+A modernized web search engine — a migration of the original 2009 "Who Knows?" Flask application from Python 2 to Go.
 
-### 🛠️ Gennemførelse
-Opgraderingen blev udført automatisk ved hjælp af værktøjet `2to3`, som håndterer oversættelsen af ældre syntaks (f.eks. `print`-statements og `import`-logik) til den moderne Python 3-standard.
+The application lets users search a database of web pages, register an account, and log in. It is deployed on Microsoft Azure and served through Nginx.
 
-**Kommando anvendt:**
-```bash
-2to3 -w app.py
+## Architecture
+
+Three-tier containerized stack:
+
+```
+Browser → Nginx (port 8081) → Go API (port 8080) → MySQL
 ```
 
+- **Nginx** — serves static HTML/CSS/JS and reverse-proxies `/api/*` to the Go backend
+- **Go backend** — REST API built with Gorilla Mux, JWT auth, bcrypt password hashing
+- **MySQL** — stores `users` and `pages` tables
 
-## Project Update: Migration & Framework Integration
-**Date:** 05/02/2026
+The active codebase lives in `Go_Refined_Code/`. The original Python app is preserved read-only in `Legacy/src/`.
 
+## Prerequisites
 
----
+- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
+- [Go 1.25+](https://go.dev/dl/) (for local development without Docker)
+- [golangci-lint](https://golangci-lint.run/usage/install/) (required by the pre-commit hook)
+- [Biome](https://biomejs.dev/guides/getting-started/) (required by the pre-commit hook)
 
-### Step 1: Structural Refactoring
-The project architecture has been reorganized to accommodate a dual-stack environment. This refactor establishes a clear separation between the existing codebase and the new, optimized logic written in **Go**, allowing for a phased migration without service interruption.
+## Getting started
 
-* **Legacy Logic:** Isolated existing modules to maintain stability while the transition is underway.
-* **Refined Logic:** Established a dedicated space for high-performance Go implementations.
-
-### Step 2: Web Framework Integration
-To support the refined services, the **Gorilla Mux** toolkit has been integrated as the primary web routing layer.
-
-* **Dependency Added:** `github.com/gorilla/mux`
-* **Purpose:** Leveraged Gorilla Mux for its robust routing capabilities, including advanced pattern matching and middleware support, which will facilitate the handling of complex API endpoints in the refined code.
-
----
-
-### Summary of Changes
-| Feature | Action | Status |
-| :--- | :--- | :--- |
-| **Project Layout** | Segregated Legacy and Refined codebases | Completed |
-| **Go Modules** | Initialized workspace and dependencies | Completed |
-| **Web Framework** | Integrated `gorilla/mux` | Installed |
-
-
-Malthe - oprettet epics og uploaded WhoKnows_Go_Gorilla_ProjectPlan.pdf til projektet. 
-Ligger under Devops_Gorillas/Files/WhoKnows_Go_Gorilla_ProjectPlan.pdf
-
-## Project Update: Go Backend Restructure & Endpoints
-**Date:** 09/02/2026
-
----
-
-### Step 1: Project Structure Update
-We reorganized the Go project to a more maintainable structure in `main.go`, separating concerns for pages, handlers, models, and services. The new layout improves readability and prepares the codebase for additional features.
-
-### 16/02/2026
-## ☁️ Azure Deployment
-
-The project is deployed on a Microsoft Azure virtual machine with the following configuration:
-
-| Property      | Value              |
-| ------------- | ------------------ |
-| **Host Name** | `gorilla-maskinen` |
-| **Public IP** | `51.120.83.21`     |
-| **Platform**  | Microsoft Azure    |
-
-### 👤 Available Users
-
-Currently, only the following user accounts are provisioned on the server:
-
-* `azureuser`
-* `gustav`
-
-### 🔐 Access
-
-Connect via SSH:
+### 1. Clone the repository
 
 ```bash
-ssh azureuser@51.120.83.21
+git clone https://github.com/Gorillaerne/Devops_Gorillas.git
+cd Devops_Gorillas
 ```
 
-> Note: Update this section if additional users or infrastructure changes are made.
+### 2. Set up the pre-commit hook
 
+The hook runs `golangci-lint` and Biome before every commit. It must be active or your commits will not be linted.
 
-### HTML pages update 19/02/2026
+```bash
+cp .githooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
 
-### Dynamic Content Rendering
+### 3. Start the dev stack
 
-All dynamic content is now handled on the client side.  
-Instead of using embedded template logic, we use **JavaScript to fetch data from the Go backend** and dynamically update the HTML pages.  
-This keeps the HTML files pure and static while still allowing real‑time, dynamic updates through API calls.
+```bash
+cd Go_Refined_Code
+docker compose -f compose.dev.yml up -d
+```
 
-### Automated MySQL Backups
+This starts:
+- MySQL on host port `3307`
+- Go backend on port `8080`
+- Nginx on port `8081`
 
-This project includes an automated backup solution for a MySQL database using a Linux server.
+Open [http://localhost:8081](http://localhost:8081) in your browser.
 
-The database is dumped using mysqldump
-Backups are compressed (.sql.gz) to save space
-Files are automatically uploaded to Google Drive via rclone
-Old backups are cleaned up (local + cloud retention)
-A cron job runs the backup daily
+### Environment variables
 
-This ensures reliable, offsite backups without manual intervention.
+Secrets are loaded from a `.env` file in `Go_Refined_Code/` for local development. Create one based on the following:
+
+```env
+DATABASE_PATH=user:password@tcp(mysql:3306)/whoknows
+JWT_SECRET=your-secret-here
+```
+
+In production, these are set as environment variables directly.
+
+## Running tests
+
+### Go tests (unit + integration)
+
+```bash
+cd Go_Refined_Code
+go test ./...
+```
+
+Uses an in-memory SQLite database — no running MySQL required.
+
+### Frontend tests (Playwright)
+
+```bash
+cd Go_Refined_Code/tests/e2e
+npm install
+npx playwright install --with-deps chromium
+npx playwright test
+```
+
+### Linting
+
+```bash
+# Go
+cd Go_Refined_Code
+golangci-lint run --config=./linters/.golangci.yml
+
+# JavaScript
+biome lint ./Go_Refined_Code/static/javaScript/
+```
+
+## Contributing
+
+### Workflow
+
+1. Pick an issue from the [project board](https://github.com/orgs/Gorillaerne/projects/1) and move it to **In Progress**.
+2. Pull latest `main` and create a feature branch:
+
+   ```bash
+   git checkout main && git pull origin main
+   git checkout -b your-branch-name
+   ```
+
+3. Make sure the pre-commit hook is active (see [Setup](#2-set-up-the-pre-commit-hook) above).
+4. Write your changes.
+5. Before pushing, verify all of the following pass:
+   - `go build ./...` compiles
+   - `go test ./...` passes
+   - `npx playwright test` passes (from `Go_Refined_Code/tests/e2e/`)
+   - All API endpoints respond correctly against the dev stack
+   - All frontend pages load and function in the browser
+6. Push your branch and open a pull request to `main`, filling out the PR template.
+
+### API endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/search?q=<query>&language=<lang>` | Search pages |
+| `POST` | `/api/register` | Register a new user |
+| `POST` | `/api/login` | Log in, returns JWT |
+| `GET` | `/api/weather` | Weather stub |
+| `GET` | `/api/logout` | Logout stub |
+
+## Deployment
+
+The application is deployed to an Azure VM (`51.120.83.21`) via GitHub Actions on every push to `main`. The CD pipeline builds Docker images, pushes them to GitHub Container Registry (`ghcr.io/gorillaerne/`), and deploys over SSH.
+
+See `.github/workflows/` for the full CI/CD pipeline.
+
+## Legacy application
+
+The original Python 2 Flask app is preserved in `Legacy/src/` for reference only. See [`Legacy/src/README.md`](Legacy/src/README.md) for its setup instructions.
