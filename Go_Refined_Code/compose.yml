@@ -17,6 +17,25 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   go-backend:
     image: ghcr.io/gorillaerne/go-backend:latest
     container_name: go-backend
@@ -25,10 +44,10 @@ services:
     volumes:
       - ./data:/app/data
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     environment:
-      DATABASE_PATH: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
     restart: unless-stopped
 
   frontend-proxy:
@@ -37,7 +56,11 @@ services:
       - "127.0.0.1:8081:80"
     depends_on:
       - go-backend
+
 volumes:
   mysql_data:
     external: true
     name: go_refined_code_mysql_data
+  postgres_data:
+    external: true
+    name: go_refined_code_postgres_data
