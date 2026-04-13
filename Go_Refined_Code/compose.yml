@@ -44,10 +44,10 @@ services:
     volumes:
       - ./data:/app/data
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}?sslmode=disable
+      DATABASE_PATH: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true
     restart: unless-stopped
 
   frontend-proxy:
