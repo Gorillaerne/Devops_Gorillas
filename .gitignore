@@ -1,3 +1,8 @@
+# Claude Code
+.claude/
+CLAUDE.md
+Go_Refined_Code/.claude/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
