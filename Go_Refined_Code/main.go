@@ -29,7 +29,7 @@ func main() {
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/search", apiHandlers.SearchAPIHandler).Methods("GET")
+	api.HandleFunc("/search", apiHandlers.SearchAPIHandler(database.DB)).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
 	api.HandleFunc("/register", apiHandlers.HandleAPIRegister(database.DB)).Methods("POST")
 	api.HandleFunc("/login", apiHandlers.HandleAPILogin(database.DB)).Methods("POST")
