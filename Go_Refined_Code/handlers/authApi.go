@@ -18,6 +18,9 @@ import (
 
 var jwtKey = []byte(os.Getenv("JWT_SECRET")) // In production, use os.Getenv("JWT_SECRET")
 
+// bcryptCost is the cost factor for bcrypt hashing. Overridden to bcrypt.MinCost in tests.
+var bcryptCost = 14
+
 // Claims struct that contains the userToken
 type Claims struct {
 	UserID int `json:"user_id"`
@@ -28,7 +31,7 @@ type Claims struct {
 func hashPassword(password string) (string, error) {
 	// GenerateFromPassword handles salting and hashing automatically
 	// Cost of 10-14 is usually a good balance of speed vs security
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcryptCost)
 	return string(bytes), err
 }
 
