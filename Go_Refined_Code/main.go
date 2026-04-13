@@ -23,6 +23,7 @@ func main() {
 	if err := database.Connect(); err != nil {
 		log.Fatal(err)
 	}
+	database.PurgeMD5Users()
 
 	// 3️⃣ Router
 	r := mux.NewRouter()
