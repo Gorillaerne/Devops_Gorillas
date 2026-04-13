@@ -45,22 +45,11 @@ func TestHashAndVerifyPassword_Bcrypt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("hashPassword: %v", err)
 	}
-	if !verifyPasswordWithFallback(hash, "secret") {
+	if !verifyPassword("secret", hash) {
 		t.Error("bcrypt verify should succeed with correct password")
 	}
-	if verifyPasswordWithFallback(hash, "wrong") {
+	if verifyPassword("wrong", hash) {
 		t.Error("bcrypt verify should fail with wrong password")
-	}
-}
-
-func TestVerifyPasswordWithFallback_MD5(t *testing.T) {
-	// MD5("password") = 5f4dcc3b5aa765d61d8327deb882cf99
-	const md5Hash = "5f4dcc3b5aa765d61d8327deb882cf99"
-	if !verifyPasswordWithFallback(md5Hash, "password") {
-		t.Error("MD5 fallback should succeed with correct password")
-	}
-	if verifyPasswordWithFallback(md5Hash, "wrong") {
-		t.Error("MD5 fallback should fail with wrong password")
 	}
 }
 
