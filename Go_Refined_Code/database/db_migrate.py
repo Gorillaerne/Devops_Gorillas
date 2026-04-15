@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import mysql.connector
 import psycopg2
 from psycopg2.extras import execute_values
