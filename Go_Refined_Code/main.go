@@ -35,6 +35,7 @@ func main() {
 	api.HandleFunc("/register", apiHandlers.HandleAPIRegister(database.DB)).Methods("POST")
 	api.HandleFunc("/login", apiHandlers.HandleAPILogin(database.DB)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
+	api.HandleFunc("/change-password", apiHandlers.HandleAPIChangePassword(database.DB)).Methods("POST")
 
 	// 4️⃣ Server
 	r.PathPrefix("/static/").Handler(
