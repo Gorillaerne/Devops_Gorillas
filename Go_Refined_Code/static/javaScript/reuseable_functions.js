@@ -2,34 +2,50 @@ const nav = document.getElementById("nav-bar");
 const navRegister = document.getElementById("nav-register");
 const navLogin = document.getElementById("nav-login");
 
-export function checkIfLoggedIn() {
+const isProfilePage = window.location.pathname.includes("profile");
 
+export function checkIfLoggedIn() {
     const token = localStorage.getItem('token');
 
-    if (token) {
-        // 1. Hide Login and Register
-        if (navLogin) navLogin.style.display = "none";
-        if (navRegister) navRegister.style.display = "none";
+    if (!token) {
+        // Unauthenticated user trying to access profile — send to login
+        if (isProfilePage) {
+            window.location.href = "/login";
+        }
+        return;
+    }
 
-        // 2. Create and Append Logout link
-        const logoutLink = document.createElement("a");
-        logoutLink.href = "#";
-        logoutLink.id = "nav-logout";
-        logoutLink.textContent = "Logout";
+    // 1. Hide Login and Register
+    if (navLogin) navLogin.style.display = "none";
+    if (navRegister) navRegister.style.display = "none";
 
-        logoutLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            logout();
+    // 2. Add Profile link
+    const profileLink = document.createElement("a");
+    profileLink.href = "/profile";
+    profileLink.id = "nav-profile";
+    profileLink.textContent = "Profile";
+    nav.appendChild(profileLink);
 
-        });
+    // 3. Add Logout link
+    const logoutLink = document.createElement("a");
+    logoutLink.href = "#";
+    logoutLink.id = "nav-logout";
+    logoutLink.textContent = "Logout";
+    logoutLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        logout();
+    });
+    nav.appendChild(logoutLink);
 
-        nav.appendChild(logoutLink);
+    // 4. Breach lockdown — breached users can only use the profile page
+    if (sessionStorage.getItem('breachWarning') === '1' && !isProfilePage) {
+        window.location.href = "/profile";
     }
 }
 
 function logout() {
-    // Simply remove the token and refresh
     localStorage.removeItem('token');
+    sessionStorage.removeItem('breachWarning');
     window.location.href = "/";
 }
 

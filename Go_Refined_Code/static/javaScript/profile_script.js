@@ -1,6 +1,12 @@
 import { callChangePasswordApi } from "./api_calls.js";
 import { checkIfLoggedIn, showError, showSuccess } from "./reuseable_functions.js";
 
+// Auth guard — checkIfLoggedIn handles the redirect, but bail early so the
+// rest of the script doesn't run for unauthenticated users.
+if (!localStorage.getItem("token")) {
+    window.location.href = "/login";
+}
+
 checkIfLoggedIn();
 
 // Show breach warning if set by login redirect (sessionStorage) or ?breached=1 query param
