@@ -36,11 +36,16 @@ function renderSearchResults(searchResults) {
         titleSpan.classList.add("result-title")
         titleSpan.textContent = searchResult.title
 
+        const snippet = document.createElement("p")
+        snippet.classList.add("result-snippet")
+        snippet.textContent = searchResult.description || "Ingen beskrivelse tilgængelig"
+
         link.appendChild(titleSpan)
         item.appendChild(link)
+        item.appendChild(snippet)
         resultsDiv.appendChild(item)
-    })
 
+    })
 }
 
 
