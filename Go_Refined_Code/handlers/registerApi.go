@@ -20,4 +20,5 @@ type AuthResponse struct {
 	StatusCode int    `json:"statusCode"`
 	Message    string `json:"message"`
 	Token      string `json:"token"`
+	Breached   bool   `json:"breached,omitempty"`
 }

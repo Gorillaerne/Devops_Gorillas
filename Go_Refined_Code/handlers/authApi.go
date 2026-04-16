@@ -139,6 +139,7 @@ func HandleAPILogin(db *sql.DB) http.HandlerFunc {
 			StatusCode: 200,
 			Message:    "Login successful",
 			Token:      tokenString,
+			Breached:   isBreached(req.Username, req.Password),
 		})
 
 		if err != nil {

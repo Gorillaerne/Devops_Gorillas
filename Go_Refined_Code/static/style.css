@@ -640,6 +640,18 @@ ul.flashes li {
   opacity: 0.7;
 }
 
+/* ── Breach Banner ── */
+.breach-banner {
+  background: rgba(194, 96, 96, 0.12);
+  border: 1px solid var(--error);
+  color: var(--error);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 28px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   nav { padding: 0 16px; }
