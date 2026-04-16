@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	cors "github.com/gorilla/handlers"
@@ -24,6 +25,10 @@ func main() {
 		log.Fatal(err)
 	}
 	database.PurgeMD5Users()
+
+	if os.Getenv("SEND_BREACH_EMAILS") == "true" {
+		go apiHandlers.SendBreachNotificationsToAll(database.DB)
+	}
 
 	// 3️⃣ Router
 	r := mux.NewRouter()
