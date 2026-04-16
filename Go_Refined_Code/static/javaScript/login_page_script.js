@@ -15,8 +15,9 @@ loginForm.addEventListener('submit', (e) => {
         .then(data => {
             localStorage.setItem("token", data.token);
             if (data.breached) {
+                sessionStorage.setItem("breachWarning", "1");
                 showSuccess("Login successful! Your password was exposed — please change it now.");
-                setTimeout(() => { window.location.href = "/profile?breached=1"; }, 2000);
+                setTimeout(() => { window.location.href = "/profile"; }, 2000);
             } else {
                 showSuccess("Login successful! Redirecting...");
                 setTimeout(() => { window.location.href = "/"; }, 1500);

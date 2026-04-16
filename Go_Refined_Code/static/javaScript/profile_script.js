@@ -3,10 +3,11 @@ import { checkIfLoggedIn, showError, showSuccess } from "./reuseable_functions.j
 
 checkIfLoggedIn();
 
-// Show breach warning if redirected from login with ?breached=1
+// Show breach warning if set by login redirect (sessionStorage) or ?breached=1 query param
 const params = new URLSearchParams(window.location.search);
-if (params.get("breached") === "1") {
+if (sessionStorage.getItem("breachWarning") === "1" || params.get("breached") === "1") {
     document.getElementById("breach-warning").style.display = "block";
+    sessionStorage.removeItem("breachWarning");
 }
 
 const form = document.getElementById("change-password-form");
