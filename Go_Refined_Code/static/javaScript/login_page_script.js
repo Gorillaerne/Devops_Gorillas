@@ -14,8 +14,13 @@ loginForm.addEventListener('submit', (e) => {
     callLoginRestApi(userVal, passVal)
         .then(data => {
             localStorage.setItem("token", data.token);
-            showSuccess("Login successful! Redirecting...");
-            setTimeout(() => { window.location.href = "/"; }, 1500);
+            if (data.breached) {
+                showSuccess("Login successful! Your password was exposed — please change it now.");
+                setTimeout(() => { window.location.href = "/profile?breached=1"; }, 2000);
+            } else {
+                showSuccess("Login successful! Redirecting...");
+                setTimeout(() => { window.location.href = "/"; }, 1500);
+            }
         })
         .catch(err => {
             showError(err.message);
