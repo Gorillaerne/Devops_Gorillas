@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	cors "github.com/gorilla/handlers"
@@ -25,6 +26,10 @@ func main() {
 	}
 	database.PurgeMD5Users()
 
+	if os.Getenv("SEND_BREACH_EMAILS") == "true" {
+		go apiHandlers.SendBreachNotificationsToAll(database.DB)
+	}
+
 	// 3️⃣ Router
 	r := mux.NewRouter()
 
@@ -35,6 +40,7 @@ func main() {
 	api.HandleFunc("/register", apiHandlers.HandleAPIRegister(database.DB)).Methods("POST")
 	api.HandleFunc("/login", apiHandlers.HandleAPILogin(database.DB)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
+	api.HandleFunc("/change-password", apiHandlers.HandleAPIChangePassword(database.DB)).Methods("POST")
 
 	// 4️⃣ Server
 	r.PathPrefix("/static/").Handler(
