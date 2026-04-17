@@ -15,7 +15,7 @@
 
   <div class="page">
     <div class="navigation">
-      <nav>
+      <nav id="nav-bar">
         <h1>
           <a href="/">¿Who Knows?</a>
         </h1>
@@ -43,6 +43,10 @@
     </div>
   </div>
 
+  <script type="module">
+    import { checkIfLoggedIn } from "../javaScript/reuseable_functions.js";
+    checkIfLoggedIn();
+  </script>
 </body>
 
 </html>
