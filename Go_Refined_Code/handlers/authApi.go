@@ -16,7 +16,7 @@ import (
 var jwtKey = []byte(os.Getenv("JWT_SECRET")) // In production, use os.Getenv("JWT_SECRET")
 
 // bcryptCost is the cost factor for bcrypt hashing. Overridden to bcrypt.MinCost in tests.
-var bcryptCost = 14
+var bcryptCost = 12
 
 // Claims struct that contains the userToken
 type Claims struct {
