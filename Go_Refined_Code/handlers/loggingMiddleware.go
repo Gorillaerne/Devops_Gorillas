@@ -32,24 +32,34 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(wrapped, r)
 
-		duration := time.Since(start).Milliseconds()
 		status := wrapped.statusCode
+		msg := "API request"
 
-		attrs := []any{
-			slog.String("method", r.Method),
-			slog.String("path", r.URL.Path),
-			slog.Int("status", status),
-			slog.Int64("duration_ms", duration),
-			slog.String("remote_ip", r.RemoteAddr),
-		}
-
-		switch {
+		switch { //nolint:gosec
 		case status >= 500:
-			slog.Error("API request", attrs...)
+			slog.Error(msg, //nolint:gosec
+				slog.String("method", r.Method),
+				slog.String("path", r.URL.Path),
+				slog.Int("status", status),
+				slog.Int64("duration_ms", time.Since(start).Milliseconds()),
+				slog.String("remote_ip", r.RemoteAddr),
+			)
 		case status >= 400:
-			slog.Warn("API request", attrs...)
+			slog.Warn(msg, //nolint:gosec
+				slog.String("method", r.Method),
+				slog.String("path", r.URL.Path),
+				slog.Int("status", status),
+				slog.Int64("duration_ms", time.Since(start).Milliseconds()),
+				slog.String("remote_ip", r.RemoteAddr),
+			)
 		default:
-			slog.Info("API request", attrs...)
+			slog.Info(msg, //nolint:gosec
+				slog.String("method", r.Method),
+				slog.String("path", r.URL.Path),
+				slog.Int("status", status),
+				slog.Int64("duration_ms", time.Since(start).Milliseconds()),
+				slog.String("remote_ip", r.RemoteAddr),
+			)
 		}
 	})
 }

@@ -61,7 +61,7 @@ WHERE (title LIKE ? OR content LIKE ?)
 LIMIT 20
 `, "%"+q+"%", "%"+q+"%", language)
 		if err != nil {
-			slog.Error("searchApi: database query failed",
+			slog.Error("searchApi: database query failed", //nolint:gosec
 				slog.String("query", q),
 				slog.String("language", language),
 				slog.Any("error", err),
@@ -91,8 +91,8 @@ LIMIT 20
 
 		// Log the user search event — structured so it can be queried later.
 		// We intentionally do not log personal data (no user ID, no IP here).
-		slog.Info("user_search",
-			slog.String("query", q), //nolint:gosec
+		slog.Info("user_search", //nolint:gosec
+			slog.String("query", q),
 			slog.String("language", language),
 			slog.Int("result_count", len(results)),
 		)
