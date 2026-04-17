@@ -4,7 +4,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 )
 
@@ -41,19 +41,15 @@ func SearchAPIHandler(db *sql.DB) http.HandlerFunc {
 			})
 
 			if err != nil {
-				// If the client disconnected or the network failed, we log it here.
-				log.Printf("searchApi: failed to send error response: %v", err)
+				slog.Error("searchApi: failed to send error response", slog.Any("error", err))
 			}
 			return
 		}
 
 		language := r.URL.Query().Get("language")
-
 		if language == "" {
 			language = "en"
 		}
-
-		log.Println("API search query:", q) //nolint:gosec
 
 		var results []SearchResult
 
@@ -65,45 +61,49 @@ WHERE (title LIKE ? OR content LIKE ?)
 LIMIT 20
 `, "%"+q+"%", "%"+q+"%", language)
 		if err != nil {
+			slog.Error("searchApi: database query failed",
+				slog.String("query", q),
+				slog.String("language", language),
+				slog.Any("error", err),
+			)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		defer func() {
 			if closeErr := rows.Close(); closeErr != nil {
-				log.Printf("searchApi: error closing rows: %v", closeErr)
+				slog.Error("searchApi: error closing rows", slog.Any("error", closeErr))
 			}
 		}()
 
 		for rows.Next() {
 			var result SearchResult
-			// Check the error returned by Scan
 			if err := rows.Scan(&result.Title, &result.Content, &result.URL); err != nil {
-				log.Printf("searchApi: error scanning row: %v", err)
-				continue // Skip this specific malformed row and try the next one
+				slog.Error("searchApi: error scanning row", slog.Any("error", err))
+				continue
 			}
 			results = append(results, result)
 		}
 
-		// ALWAYS check for errors that may have occurred during the iteration
 		if err := rows.Err(); err != nil {
-			log.Printf("searchApi: error during row iteration: %v", err)
+			slog.Error("searchApi: error during row iteration", slog.Any("error", err))
 		}
 
-		response := SearchResponse{
-			Data: results,
-		}
-		log.Println("WRAPPED RESPONSE EXECUTED")
-		// JSON response
+		// Log the user search event — structured so it can be queried later.
+		// We intentionally do not log personal data (no user ID, no IP here).
+		slog.Info("user_search",
+			slog.String("query", q), //nolint:gosec
+			slog.String("language", language),
+			slog.Int("result_count", len(results)),
+		)
+
+		response := SearchResponse{Data: results}
+
 		w.Header().Set("Content-Type", "application/json")
-		// Explicitly set 200 OK if we've reached this point successfully
 		w.WriteHeader(http.StatusOK)
 
-		err = json.NewEncoder(w).Encode(response)
-		if err != nil {
-			// If we fail here, the client likely won't see the error message,
-			// but your server logs will explain why the connection was cut.
-			log.Printf("searchApi: failed to encode response: %v", err)
+		if err = json.NewEncoder(w).Encode(response); err != nil {
+			slog.Error("searchApi: failed to encode response", slog.Any("error", err))
 		}
 	}
 }
