@@ -13,6 +13,7 @@ import (
 
 	cors "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // Just for testing endpoints
@@ -38,6 +39,9 @@ func main() {
 
 	// 3️⃣ Router
 	r := mux.NewRouter()
+
+	// Prometheus metrics endpoint
+	r.Handle("/metrics", promhttp.Handler()).Methods("GET")
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
