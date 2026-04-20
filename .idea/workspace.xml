@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="389be424-c039-41eb-bf6b-e4b14bee3357" name="Changes" comment="CD test med appleboy">
-      <change afterPath="$PROJECT_DIR$/Go_Refined_Code/utilities/crawler.js" afterDir="false" />
+    <list default="true" id="389be424-c039-41eb-bf6b-e4b14bee3357" name="Changes" comment="Added crawler og /metrics endpoint så vi kan få prometheus til at virker sammen">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Go_Refined_Code/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/Go_Refined_Code/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Go_Refined_Code/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/Go_Refined_Code/go.sum" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +85,7 @@
       <workItem from="1776337900821" duration="527000" />
       <workItem from="1776666856898" duration="774000" />
       <workItem from="1776673095005" duration="607000" />
-      <workItem from="1776675372566" duration="411000" />
+      <workItem from="1776675372566" duration="1067000" />
     </task>
     <task id="LOCAL-00001" summary="changed mysql-fil så den passer til workbench.">
       <option name="closed" value="true" />
@@ -114,7 +111,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772626717624</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added crawler og /metrics endpoint så vi kan få prometheus til at virker sammen">
+      <option name="closed" value="true" />
+      <created>1776676112287</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1776676112287</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -123,9 +128,21 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="changed mysql-fil så den passer til workbench." />
     <MESSAGE value="CD test med appleboy" />
-    <option name="LAST_COMMIT_MESSAGE" value="CD test med appleboy" />
+    <MESSAGE value="Added crawler og /metrics endpoint så vi kan få prometheus til at virker sammen" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added crawler og /metrics endpoint så vi kan få prometheus til at virker sammen" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/Go_Refined_Code/main.go</url>
+          <line>37</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

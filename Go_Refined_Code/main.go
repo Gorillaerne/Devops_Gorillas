@@ -5,7 +5,6 @@ import (
 	"devops_gorillas/database"
 	apiHandlers "devops_gorillas/handlers"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"log/slog"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 
 	cors "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // Just for testing endpoints
