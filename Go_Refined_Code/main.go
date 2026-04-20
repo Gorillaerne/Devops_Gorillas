@@ -5,6 +5,7 @@ import (
 	"devops_gorillas/database"
 	apiHandlers "devops_gorillas/handlers"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"log/slog"
 	"net/http"
@@ -38,6 +39,9 @@ func main() {
 
 	// 3️⃣ Router
 	r := mux.NewRouter()
+
+	// Prometheus metrics endpoint
+	r.Handle("/metrics", promhttp.Handler()).Methods("GET")
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
