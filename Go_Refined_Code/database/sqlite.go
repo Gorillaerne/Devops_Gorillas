@@ -9,8 +9,8 @@ import (
 	"time"
 
 	/* SQL import */
-	_ "github.com/lib/pq"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq" // register postgres driver
 )
 
 // DB connection to DB
