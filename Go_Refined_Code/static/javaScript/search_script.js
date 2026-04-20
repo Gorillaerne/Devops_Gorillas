@@ -25,6 +25,14 @@ function renderSearchResults(searchResults) {
 
     resultsDiv.innerHTML = ""
 
+    if (!searchResults || searchResults.length === 0) {
+        const noResults = document.createElement("p")
+        noResults.classList.add("no-results")
+        noResults.textContent = "No result on search"
+        resultsDiv.appendChild(noResults)
+        return
+    }
+
     searchResults.forEach(searchResult => {
         const item = document.createElement("div")
         item.classList.add("result-item")
@@ -36,11 +44,16 @@ function renderSearchResults(searchResults) {
         titleSpan.classList.add("result-title")
         titleSpan.textContent = searchResult.title
 
+        const snippet = document.createElement("p")
+        snippet.classList.add("result-snippet")
+        snippet.textContent = searchResult.description || "Ingen beskrivelse tilgængelig"
+
         link.appendChild(titleSpan)
         item.appendChild(link)
+        item.appendChild(snippet)
         resultsDiv.appendChild(item)
-    })
 
+    })
 }
 
 

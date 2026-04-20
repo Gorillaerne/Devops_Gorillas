@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"time"
 
 	/* SQL import */
 	_ "github.com/go-sql-driver/mysql"
@@ -37,6 +38,10 @@ func Connect() error {
 	if err := DB.Ping(); err != nil {
 		return err
 	}
+
+	DB.SetMaxOpenConns(25)
+	DB.SetMaxIdleConns(5)
+	DB.SetConnMaxLifetime(5 * time.Minute)
 
 	log.Println("✅ MySQL database connected")
 

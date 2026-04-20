@@ -6,11 +6,14 @@ import (
 	apiHandlers "devops_gorillas/handlers"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	cors "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // Just for testing endpoints
@@ -19,22 +22,36 @@ func homeHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func main() {
-	// 1️⃣ Database
+	// 1️⃣ Structured JSON logger — all logs are emitted as JSON lines to stdout
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})))
+
+	// 2️⃣ Database
 	if err := database.Connect(); err != nil {
 		log.Fatal(err)
 	}
 	database.PurgeMD5Users()
 
+	if os.Getenv("SEND_BREACH_EMAILS") == "true" {
+		go apiHandlers.SendBreachNotificationsToAll(database.DB)
+	}
+
 	// 3️⃣ Router
 	r := mux.NewRouter()
 
+	// Prometheus metrics endpoint
+	r.Handle("/metrics", promhttp.Handler()).Methods("GET")
+
 	// API
 	api := r.PathPrefix("/api").Subrouter()
+	api.Use(apiHandlers.LoggingMiddleware)
 	api.HandleFunc("/search", apiHandlers.SearchAPIHandler(database.DB)).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
 	api.HandleFunc("/register", apiHandlers.HandleAPIRegister(database.DB)).Methods("POST")
 	api.HandleFunc("/login", apiHandlers.HandleAPILogin(database.DB)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
+	api.HandleFunc("/change-password", apiHandlers.HandleAPIChangePassword(database.DB)).Methods("POST")
 
 	// 4️⃣ Server
 	r.PathPrefix("/static/").Handler(

@@ -38,6 +38,30 @@ export function callLoginRestApi(username, password) {
         });
 }
 
+export function callChangePasswordApi(currentPassword, newPassword, newPassword2) {
+    const token = localStorage.getItem("token");
+    return fetch("/api/change-password", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword,
+            new_password2: newPassword2,
+        }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errData => {
+                    throw new Error(errData.message || `Request failed (${response.status})`);
+                });
+            }
+            return response.json();
+        });
+}
+
 export function callRegisterRestApi(userData) {
     return fetch(`/api/register`, {
         method: 'POST',

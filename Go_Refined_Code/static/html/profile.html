@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="da">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile — ¿Who Knows?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/png" href="/monkgroup.png">
+</head>
+
+<body>
+
+  <div class="page">
+    <div class="navigation">
+      <nav id="nav-bar">
+        <h1>
+          <a href="/">¿Who Knows?</a>
+        </h1>
+        <a id="nav-login" href="/login">Log in</a>
+        <a id="nav-register" href="/register">Register</a>
+      </nav>
+    </div>
+
+    <div class="body" id="body">
+      <div class="form-page">
+        <div class="form-container">
+
+          <div id="breach-warning" style="display:none" class="breach-banner">
+            <strong>Security alert:</strong> Your account credentials were exposed in a data breach.
+            Please change your password immediately.
+          </div>
+
+          <h2>Change password.</h2>
+          <p class="form-sub">Keep your account secure.</p>
+          <span class="accent-line"></span>
+
+          <form id="change-password-form">
+            <dl>
+              <div>
+                <dt>Current password</dt>
+                <dd>
+                  <input type="password" id="current-password" size="30" placeholder="••••••••" required>
+                </dd>
+              </div>
+
+              <div>
+                <dt>New password</dt>
+                <dd>
+                  <input type="password" id="new-password" size="30" placeholder="••••••••" required>
+                </dd>
+              </div>
+
+              <div>
+                <dt>New password <small>(repeat)</small></dt>
+                <dd>
+                  <input type="password" id="new-password-confirm" size="30" placeholder="••••••••" required>
+                </dd>
+              </div>
+            </dl>
+            <div class="actions">
+              <input type="submit" id="change-password-button" value="Update Password">
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>¿Who Knows? &copy; 2026</span>
+        <a href="/about">About</a>
+      </div>
+    </div>
+
+    <script src="../javaScript/profile_script.js" type="module"></script>
+  </div>
+</body>
+
+</html>
