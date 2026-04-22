@@ -46,6 +46,7 @@ func main() {
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
+	api.Use(apiHandlers.PrometheusMiddleware)
 	api.Use(apiHandlers.LoggingMiddleware)
 	api.HandleFunc("/search", apiHandlers.SearchAPIHandler(database.DB)).Methods("GET")
 	api.HandleFunc("/weather", homeHandler).Methods("GET")
