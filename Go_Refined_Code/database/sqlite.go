@@ -3,13 +3,14 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"time"
 
 	/* SQL import */
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq" // register postgres driver
 )
 
 // DB connection to DB
@@ -17,20 +18,22 @@ var DB *sql.DB
 
 // Connect - connection to DB
 func Connect() error {
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("No .env file found, using defaults or system environment")
 	}
 
-	log.Println("Connecting to MySQL database...")
+	log.Println("Connecting to Postgres database...")
 
-	dsn := os.Getenv("DATABASE_PATH")
-	if dsn == "" {
-		log.Fatal("DATABASE_PATH environment variable is not set")
-	}
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("PG_HOST"),
+		os.Getenv("PG_PORT"),
+		os.Getenv("PG_USER"),
+		os.Getenv("PG_PASSWORD"),
+		os.Getenv("PG_DB"),
+	)
 
-	DB, err = sql.Open("mysql", dsn)
+	DB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		return err
 	}
@@ -43,21 +46,20 @@ func Connect() error {
 	DB.SetMaxIdleConns(5)
 	DB.SetConnMaxLifetime(5 * time.Minute)
 
-	log.Println("✅ MySQL database connected")
+	log.Println("✅ Postgres database connected")
 
 	// List tables
-	rows, err := DB.Query(`SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()`)
+	rows, err := DB.Query(`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`)
 	if err != nil {
 		return err
 	}
-
 	defer func() { _ = rows.Close() }()
+
 	for rows.Next() {
 		var table string
 		if err := rows.Scan(&table); err != nil {
-			// Log the error and decide whether to continue or return
 			log.Printf("error scanning row: %v", err)
-			continue // or return err
+			continue
 		}
 		log.Println("Found table:", table)
 	}
