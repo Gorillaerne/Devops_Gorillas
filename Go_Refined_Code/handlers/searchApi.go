@@ -96,6 +96,7 @@ LIMIT 20
 			slog.String("language", language),
 			slog.Int("result_count", len(results)),
 		)
+		SearchQueriesTotal.WithLabelValues(q).Inc()
 
 		response := SearchResponse{Data: results}
 

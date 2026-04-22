@@ -32,6 +32,7 @@ func main() {
 		log.Fatal(err)
 	}
 	database.PurgeMD5Users()
+	apiHandlers.StartUserMetricsCollector(database.DB, 60*time.Second)
 
 	if os.Getenv("SEND_BREACH_EMAILS") == "true" {
 		go apiHandlers.SendBreachNotificationsToAll(database.DB)
