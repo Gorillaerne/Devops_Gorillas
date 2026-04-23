@@ -1,8 +1,9 @@
-package handlers
+package tests
 
 import (
 	"bytes"
 	"database/sql"
+	"devops_gorillas/handlers"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +16,7 @@ import (
 
 // TestMain sets a low bcrypt cost so register/login tests run fast.
 func TestMain(m *testing.M) {
-	bcryptCost = bcrypt.MinCost
+	handlers.bcryptCost = bcrypt.MinCost
 	os.Exit(m.Run())
 }
 
@@ -41,14 +42,14 @@ func newUsersDB(t *testing.T) *sql.DB {
 // --- Unit tests for password helpers ---
 
 func TestHashAndVerifyPassword_Bcrypt(t *testing.T) {
-	hash, err := hashPassword("secret")
+	hash, err := handlers.hashPassword("secret")
 	if err != nil {
 		t.Fatalf("hashPassword: %v", err)
 	}
-	if !verifyPassword("secret", hash) {
+	if !handlers.verifyPassword("secret", hash) {
 		t.Error("bcrypt verify should succeed with correct password")
 	}
-	if verifyPassword("wrong", hash) {
+	if handlers.verifyPassword("wrong", hash) {
 		t.Error("bcrypt verify should fail with wrong password")
 	}
 }
@@ -63,7 +64,7 @@ func TestHandleAPIRegister_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	HandleAPIRegister(db)(w, req)
+	handlers.HandleAPIRegister(db)(w, req)
 
 	if w.Code != http.StatusCreated {
 		t.Errorf("expected 201, got %d: %s", w.Code, w.Body.String())
@@ -78,7 +79,7 @@ func TestHandleAPIRegister_PasswordMismatch(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	HandleAPIRegister(db)(w, req)
+	handlers.HandleAPIRegister(db)(w, req)
 
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Errorf("expected 422, got %d", w.Code)
@@ -93,13 +94,13 @@ func TestHandleAPIRegister_DuplicateUser(t *testing.T) {
 	// First registration should succeed
 	req1 := httptest.NewRequest(http.MethodPost, "/api/register", bytes.NewBufferString(body))
 	req1.Header.Set("Content-Type", "application/json")
-	HandleAPIRegister(db)(httptest.NewRecorder(), req1)
+	handlers.HandleAPIRegister(db)(httptest.NewRecorder(), req1)
 
 	// Second registration of the same username should conflict
 	req2 := httptest.NewRequest(http.MethodPost, "/api/register", bytes.NewBufferString(body))
 	req2.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	HandleAPIRegister(db)(w, req2)
+	handlers.HandleAPIRegister(db)(w, req2)
 
 	if w.Code != http.StatusConflict {
 		t.Errorf("expected 409 on duplicate, got %d", w.Code)
@@ -112,7 +113,7 @@ func TestHandleAPIRegister_InvalidJSON(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/register", bytes.NewBufferString("not-json"))
 	w := httptest.NewRecorder()
 
-	HandleAPIRegister(db)(w, req)
+	handlers.HandleAPIRegister(db)(w, req)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected 400, got %d", w.Code)
@@ -146,12 +147,12 @@ func TestHandleAPILogin_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	HandleAPILogin(db)(w, req)
+	handlers.HandleAPILogin(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
-	var resp AuthResponse
+	var resp handlers.AuthResponse
 	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
@@ -169,7 +170,7 @@ func TestHandleAPILogin_WrongPassword(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	HandleAPILogin(db)(w, req)
+	handlers.HandleAPILogin(db)(w, req)
 
 	if w.Code != http.StatusUnauthorized {
 		t.Errorf("expected 401, got %d", w.Code)
@@ -184,7 +185,7 @@ func TestHandleAPILogin_UnknownUser(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	HandleAPILogin(db)(w, req)
+	handlers.HandleAPILogin(db)(w, req)
 
 	if w.Code != http.StatusUnauthorized {
 		t.Errorf("expected 401, got %d", w.Code)
@@ -197,7 +198,7 @@ func TestHandleAPILogin_InvalidJSON(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/login", bytes.NewBufferString("bad"))
 	w := httptest.NewRecorder()
 
-	HandleAPILogin(db)(w, req)
+	handlers.HandleAPILogin(db)(w, req)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected 400, got %d", w.Code)

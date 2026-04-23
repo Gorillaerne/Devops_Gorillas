@@ -1,7 +1,8 @@
-package handlers
+package tests
 
 import (
 	"bytes"
+	"devops_gorillas/handlers"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,14 +16,14 @@ import (
 // makeToken creates a signed JWT for the given userID, using the package-level jwtKey.
 func makeToken(t *testing.T, userID int) string {
 	t.Helper()
-	claims := &Claims{
+	claims := &handlers.Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString(jwtKey)
+	signed, err := token.SignedString(handlers.jwtKey)
 	if err != nil {
 		t.Fatalf("makeToken: %v", err)
 	}
@@ -43,7 +44,7 @@ func TestHandleAPIChangePassword_Success(t *testing.T) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	w := httptest.NewRecorder()
 
-	HandleAPIChangePassword(db)(w, req)
+	handlers.HandleAPIChangePassword(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected 200, got %d: %s", w.Code, w.Body.String())
@@ -63,7 +64,7 @@ func TestHandleAPIChangePassword_WrongCurrentPassword(t *testing.T) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	w := httptest.NewRecorder()
 
-	HandleAPIChangePassword(db)(w, req)
+	handlers.HandleAPIChangePassword(db)(w, req)
 
 	if w.Code != http.StatusUnauthorized {
 		t.Errorf("expected 401, got %d", w.Code)
@@ -83,7 +84,7 @@ func TestHandleAPIChangePassword_PasswordMismatch(t *testing.T) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	w := httptest.NewRecorder()
 
-	HandleAPIChangePassword(db)(w, req)
+	handlers.HandleAPIChangePassword(db)(w, req)
 
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Errorf("expected 422, got %d", w.Code)
@@ -97,7 +98,7 @@ func TestHandleAPIChangePassword_NoToken(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/change-password", bytes.NewBufferString(body))
 	w := httptest.NewRecorder()
 
-	HandleAPIChangePassword(db)(w, req)
+	handlers.HandleAPIChangePassword(db)(w, req)
 
 	if w.Code != http.StatusUnauthorized {
 		t.Errorf("expected 401, got %d", w.Code)
@@ -116,7 +117,7 @@ func TestHandleAPIChangePassword_InvalidJSON(t *testing.T) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	w := httptest.NewRecorder()
 
-	HandleAPIChangePassword(db)(w, req)
+	handlers.HandleAPIChangePassword(db)(w, req)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected 400, got %d", w.Code)
@@ -133,12 +134,12 @@ func TestHandleAPILogin_BreachedFlagSet(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	HandleAPILogin(db)(w, req)
+	handlers.HandleAPILogin(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
-	var resp AuthResponse
+	var resp handlers.AuthResponse
 	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
@@ -156,12 +157,12 @@ func TestHandleAPILogin_BreachedFlagNotSetForNormalUser(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	HandleAPILogin(db)(w, req)
+	handlers.HandleAPILogin(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
-	var resp AuthResponse
+	var resp handlers.AuthResponse
 	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode: %v", err)
 	}

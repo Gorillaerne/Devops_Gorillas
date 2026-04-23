@@ -1,6 +1,7 @@
-package handlers
+package tests
 
 import (
+	"devops_gorillas/handlers"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +16,7 @@ func TestSendBreachNotification_Success(t *testing.T) {
 		if r.Header.Get("Authorization") != "Bearer test-key" {
 			t.Errorf("unexpected Authorization header: %s", r.Header.Get("Authorization"))
 		}
-		var payload resendPayload
+		var payload handlers.resendPayload
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			t.Errorf("decode payload: %v", err)
 		}
@@ -26,10 +27,10 @@ func TestSendBreachNotification_Success(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	resendBaseURL = srv.URL
-	t.Cleanup(func() { resendBaseURL = "https://api.resend.com" })
+	handlers.resendBaseURL = srv.URL
+	t.Cleanup(func() { handlers.resendBaseURL = "https://api.resend.com" })
 
-	err := SendBreachNotification("test-key", "noreply@example.com", "victim@example.com", "Benthe1954")
+	err := handlers.SendBreachNotification("test-key", "noreply@example.com", "victim@example.com", "Benthe1954")
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -41,10 +42,10 @@ func TestSendBreachNotification_APIError(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	resendBaseURL = srv.URL
-	t.Cleanup(func() { resendBaseURL = "https://api.resend.com" })
+	handlers.resendBaseURL = srv.URL
+	t.Cleanup(func() { handlers.resendBaseURL = "https://api.resend.com" })
 
-	err := SendBreachNotification("bad-key", "from@example.com", "to@example.com", "Jack1969")
+	err := handlers.SendBreachNotification("bad-key", "from@example.com", "to@example.com", "Jack1969")
 	if err == nil {
 		t.Error("expected error on 401 response")
 	}
@@ -54,14 +55,14 @@ func TestSendBreachNotificationsToAll_SkipsWhenNoAPIKey(t *testing.T) {
 	db := newUsersDB(t)
 	// Should log and return without error when RESEND_API_KEY is not set
 	t.Setenv("RESEND_API_KEY", "")
-	SendBreachNotificationsToAll(db) // must not panic
+	handlers.SendBreachNotificationsToAll(db) // must not panic
 }
 
 func TestSendBreachNotificationsToAll_SendsToKnownUsers(t *testing.T) {
 	notified := map[string]bool{}
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var payload resendPayload
+		var payload handlers.resendPayload
 		_ = json.NewDecoder(r.Body).Decode(&payload)
 		if len(payload.To) > 0 {
 			notified[payload.To[0]] = true
@@ -70,8 +71,8 @@ func TestSendBreachNotificationsToAll_SendsToKnownUsers(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	resendBaseURL = srv.URL
-	t.Cleanup(func() { resendBaseURL = "https://api.resend.com" })
+	handlers.resendBaseURL = srv.URL
+	t.Cleanup(func() { handlers.resendBaseURL = "https://api.resend.com" })
 
 	t.Setenv("RESEND_API_KEY", "test-key")
 	t.Setenv("RESEND_FROM_EMAIL", "noreply@example.com")
@@ -80,7 +81,7 @@ func TestSendBreachNotificationsToAll_SendsToKnownUsers(t *testing.T) {
 	seedUser(t, db, "Benthe1954", "benthe@example.com", "somepass")
 	seedUser(t, db, "Jack1969", "jack@example.com", "somepass")
 
-	SendBreachNotificationsToAll(db)
+	handlers.SendBreachNotificationsToAll(db)
 
 	if !notified["benthe@example.com"] {
 		t.Error("expected benthe@example.com to be notified")

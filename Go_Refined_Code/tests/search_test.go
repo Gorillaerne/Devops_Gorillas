@@ -1,7 +1,8 @@
-package handlers
+package tests
 
 import (
 	"database/sql"
+	"devops_gorillas/handlers"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -47,7 +48,7 @@ func TestSearchAPIHandler_MissingQuery(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/search", nil)
 	w := httptest.NewRecorder()
 
-	SearchAPIHandler(db)(w, req)
+	handlers.SearchAPIHandler(db)(w, req)
 
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Errorf("expected 422, got %d", w.Code)
@@ -61,12 +62,12 @@ func TestSearchAPIHandler_ReturnsResults(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/search?q=Go", nil)
 	w := httptest.NewRecorder()
 
-	SearchAPIHandler(db)(w, req)
+	handlers.SearchAPIHandler(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
-	var resp SearchResponse
+	var resp handlers.SearchResponse
 	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
@@ -81,7 +82,7 @@ func TestSearchAPIHandler_EmptyResults(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/search?q=nonexistent", nil)
 	w := httptest.NewRecorder()
 
-	SearchAPIHandler(db)(w, req)
+	handlers.SearchAPIHandler(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected 200 with empty results, got %d", w.Code)
@@ -97,12 +98,12 @@ func TestSearchAPIHandler_DefaultLanguageIsEn(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/search?q=something", nil)
 	w := httptest.NewRecorder()
 
-	SearchAPIHandler(db)(w, req)
+	handlers.SearchAPIHandler(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected 200, got %d", w.Code)
 	}
-	var resp SearchResponse
+	var resp handlers.SearchResponse
 	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
@@ -122,12 +123,12 @@ func TestSearchAPIHandler_LanguageFilter(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/search?q=Danish&language=da", nil)
 	w := httptest.NewRecorder()
 
-	SearchAPIHandler(db)(w, req)
+	handlers.SearchAPIHandler(db)(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected 200, got %d", w.Code)
 	}
-	var resp SearchResponse
+	var resp handlers.SearchResponse
 	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
