@@ -52,7 +52,7 @@ func SendBreachNotification(apiKey, fromEmail, toEmail, username string) error {
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req) //nolint:gosec // URL is controlled internally via resendBaseURL
 	if err != nil {
 		return fmt.Errorf("send request: %w", err)
 	}
