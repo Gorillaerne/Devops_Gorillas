@@ -691,7 +691,7 @@ ul.flashes li {
 
 .weather-loading { color: var(--text-2); text-align: center; padding: 40px 0; }
 
-.weather-forecast { max-width: 900px; margin: 0 auto 60px; padding: 0 24px; }
+.weather-forecast { width: 100%; max-width: 900px; margin: 0 auto 60px; padding: 0 24px; box-sizing: border-box; }
 
 .weather-forecast-title {
   font-family: var(--font-serif);
@@ -702,12 +702,14 @@ ul.flashes li {
 }
 
 .weather-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  display: flex;
   gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
 }
 
 .weather-day-card {
+  flex: 1 0 110px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
