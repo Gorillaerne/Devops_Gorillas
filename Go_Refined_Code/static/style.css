@@ -656,6 +656,76 @@ ul.flashes li {
   margin-top: 5px;
 }
 
+/* ── Weather ── */
+.weather-hero { padding: 56px 24px 32px; text-align: center; }
+
+.weather-current {
+  max-width: 480px;
+  margin: 0 auto 40px;
+  padding: 0 24px;
+}
+
+.weather-now-card {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+}
+
+.weather-now-icon { font-size: 64px; line-height: 1; }
+
+.weather-now-temp {
+  font-family: var(--font-serif);
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.weather-unit { font-size: 28px; color: var(--text-2); }
+.weather-now-desc { font-size: 16px; color: var(--text-1); margin-top: 6px; }
+.weather-now-wind { font-size: 13px; color: var(--text-2); margin-top: 4px; font-family: var(--font-mono); }
+
+.weather-loading { color: var(--text-2); text-align: center; padding: 40px 0; }
+
+.weather-forecast { max-width: 900px; margin: 0 auto 60px; padding: 0 24px; }
+
+.weather-forecast-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  color: var(--text-2);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.weather-day-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 12px;
+  text-align: center;
+  transition: border-color var(--t) var(--ease);
+}
+
+.weather-day-card:hover { border-color: var(--border-mid); }
+
+.weather-day-date { font-size: 11px; color: var(--text-2); margin-bottom: 8px; font-family: var(--font-mono); }
+.weather-day-icon { font-size: 28px; margin-bottom: 6px; }
+.weather-day-desc { font-size: 11px; color: var(--text-2); margin-bottom: 8px; line-height: 1.3; }
+
+.weather-day-temps { display: flex; justify-content: center; gap: 8px; font-family: var(--font-mono); }
+.weather-temp-high { color: var(--accent); font-size: 13px; font-weight: 500; }
+.weather-temp-low { color: var(--text-3); font-size: 13px; }
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   nav { padding: 0 16px; }
