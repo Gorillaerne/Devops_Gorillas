@@ -49,7 +49,7 @@ func main() {
 	api.Use(apiHandlers.PrometheusMiddleware)
 	api.Use(apiHandlers.LoggingMiddleware)
 	api.HandleFunc("/search", apiHandlers.SearchAPIHandler(database.DB)).Methods("GET")
-	api.HandleFunc("/weather", homeHandler).Methods("GET")
+	api.HandleFunc("/weather", apiHandlers.WeatherAPIHandler).Methods("GET")
 	api.HandleFunc("/register", apiHandlers.HandleAPIRegister(database.DB)).Methods("POST")
 	api.HandleFunc("/login", apiHandlers.HandleAPILogin(database.DB)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
