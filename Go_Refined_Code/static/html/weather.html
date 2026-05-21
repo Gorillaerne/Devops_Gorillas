@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="da">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>¿Who Knows?</title>
+  <title>Weather — ¿Who Knows?</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="../style.css">
@@ -27,18 +27,17 @@
 
     <div class="body">
 
-      <div class="search-hero">
-        <span class="search-hero-eyebrow">Search Engine</span>
-        <h1 class="search-hero-title">¿Who Knows?</h1>
-        <p class="search-hero-sub">The search engine that keeps you guessing.</p>
-
-        <div class="search-bar-wrapper">
-          <input id="search-input" placeholder="Search for anything…" value="" autocomplete="off" />
-          <button id="search-button" type="button">Search</button>
-        </div>
+      <div class="weather-hero">
+        <span class="search-hero-eyebrow">Copenhagen, Denmark</span>
+        <h1 class="search-hero-title">Weather Forecast</h1>
+        <p class="search-hero-sub">Powered by Open-Meteo &mdash; updated every 30 minutes.</p>
       </div>
 
-      <div id="results"></div>
+      <div id="weather-current" class="weather-current">
+        <p class="weather-loading">Loading weather&hellip;</p>
+      </div>
+
+      <div id="weather-forecast" class="weather-forecast"></div>
 
       <div class="footer">
         <span>¿Who Knows? &copy; 2026</span>
@@ -46,8 +45,9 @@
       </div>
     </div>
 
-    <script src="../javaScript/search_script.js" type="module"></script>
+    <script src="../javaScript/weather_script.js" type="module"></script>
   </div>
+
 </body>
 
 </html>
