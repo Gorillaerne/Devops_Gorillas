@@ -127,6 +127,16 @@ jobs:
             sleep 3
           done
 
+      - name: Seed test data into pages table
+        run: |
+          docker exec mysql mysql -utestuser -ptest_pw whoknowsdb -e "
+            INSERT IGNORE INTO pages (title, url, language, content, last_updated) VALUES
+            ('Python', 'https://en.wikipedia.org/wiki/Python_(programming_language)', 'en', 'Python is a high-level general-purpose programming language. It is used widely in web development, data science, and automation.', NOW()),
+            ('Docker', 'https://en.wikipedia.org/wiki/Docker_(software)', 'en', 'Docker is a platform for developing, shipping, and running applications in containers.', NOW()),
+            ('JavaScript', 'https://en.wikipedia.org/wiki/JavaScript', 'en', 'JavaScript is a lightweight interpreted programming language used primarily for web development.', NOW()),
+            ('Database', 'https://en.wikipedia.org/wiki/Database', 'en', 'A database is an organized collection of structured information or data stored electronically.', NOW());
+          "
+
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
