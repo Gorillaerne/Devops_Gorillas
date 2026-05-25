@@ -30,6 +30,9 @@ services:
         condition: service_healthy
     environment:
       DATABASE_PATH: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     restart: unless-stopped
 
   frontend-proxy:
