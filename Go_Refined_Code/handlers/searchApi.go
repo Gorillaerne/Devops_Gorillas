@@ -76,6 +76,43 @@ LIMIT 20
 			return
 		}
 
+		// Peek at whether FULLTEXT returned anything; if not, fall back to LIKE.
+		if !rows.Next() {
+			if err := rows.Close(); err != nil {
+				slog.Error("searchApi: error closing rows", slog.Any("error", err))
+			}
+			rows, err = db.Query(`
+SELECT title, content, url
+FROM pages
+WHERE (title LIKE ? OR content LIKE ?)
+  AND language = ?
+LIMIT 20
+`, "%"+q+"%", "%"+q+"%", language)
+			if err != nil {
+				slog.Error("searchApi: fallback query failed", //nolint:gosec
+					slog.String("query", q),
+					slog.String("language", language),
+					slog.Any("error", err),
+				)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		} else {
+			// rows.Next() already advanced the cursor — scan this first row too.
+			var result SearchResult
+			if err := rows.Scan(&result.Title, &result.Content, &result.URL); err != nil {
+				slog.Error("searchApi: error scanning row", slog.Any("error", err))
+			} else {
+				runes := []rune(result.Content)
+				if len(runes) > descriptionMaxLen {
+					result.Description = string(runes[:descriptionMaxLen]) + "..."
+				} else {
+					result.Description = result.Content
+				}
+				results = append(results, result)
+			}
+		}
+
 		defer func() {
 			if closeErr := rows.Close(); closeErr != nil {
 				slog.Error("searchApi: error closing rows", slog.Any("error", closeErr))
