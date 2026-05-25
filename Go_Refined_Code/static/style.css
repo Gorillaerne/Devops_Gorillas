@@ -106,6 +106,10 @@ nav h1 a:hover { color: var(--accent); }
 
 nav a { display: inline-block; }
 
+#nav-profile {
+  margin-left: 16px;
+}
+
 #nav-login,
 #nav-register,
 #nav-logout {

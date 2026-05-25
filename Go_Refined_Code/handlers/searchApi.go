@@ -59,10 +59,13 @@ func SearchAPIHandler(db *sql.DB) http.HandlerFunc {
 		rows, err := db.Query(`
 SELECT title, content, url
 FROM pages
-WHERE (title LIKE ? OR content LIKE ?)
-  AND language = ?
+WHERE language = ?
+  AND (MATCH(title) AGAINST(? IN NATURAL LANGUAGE MODE) > 0
+       OR MATCH(content) AGAINST(? IN NATURAL LANGUAGE MODE) > 0)
+ORDER BY MATCH(title) AGAINST(? IN NATURAL LANGUAGE MODE) * 3
+       + MATCH(content) AGAINST(? IN NATURAL LANGUAGE MODE) DESC
 LIMIT 20
-`, "%"+q+"%", "%"+q+"%", language)
+`, language, q, q, q, q)
 		if err != nil {
 			slog.Error("searchApi: database query failed", //nolint:gosec
 				slog.String("query", q),
