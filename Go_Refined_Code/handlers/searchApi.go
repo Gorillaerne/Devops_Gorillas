@@ -98,6 +98,15 @@ LIMIT 20
 		)
 		SearchQueriesTotal.WithLabelValues(q).Inc()
 
+		_, dbErr := db.Exec(`
+			INSERT INTO search_queries (query, language, count)
+			VALUES (?, ?, 1)
+			ON DUPLICATE KEY UPDATE count = count + 1
+		`, q, language)
+		if dbErr != nil {
+			slog.Error("searchApi: failed to upsert search_queries", slog.Any("error", dbErr))
+		}
+
 		response := SearchResponse{Data: results}
 
 		w.Header().Set("Content-Type", "application/json")
