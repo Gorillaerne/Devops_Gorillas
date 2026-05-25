@@ -54,7 +54,7 @@ func SearchAPIHandler(db *sql.DB) http.HandlerFunc {
 			language = "en"
 		}
 
-		var results []SearchResult
+		results := []SearchResult{}
 
 		rows, err := db.Query(`
 SELECT title, content, url
