@@ -66,21 +66,38 @@ ORDER BY MATCH(title) AGAINST(? IN NATURAL LANGUAGE MODE) * 3
        + MATCH(content) AGAINST(? IN NATURAL LANGUAGE MODE) DESC
 LIMIT 20
 `, language, q, q, q, q)
+
+		// Fall back to LIKE if FULLTEXT is unsupported (e.g. SQLite in tests)
+		// or if the ranked query returns no results.
+		useLike := err != nil
 		if err != nil {
-			slog.Error("searchApi: database query failed", //nolint:gosec
-				slog.String("query", q),
-				slog.String("language", language),
-				slog.Any("error", err),
+			slog.Info("searchApi: FULLTEXT unavailable, falling back to LIKE",
+				slog.String("reason", err.Error()),
 			)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
 		}
 
-		// Peek at whether FULLTEXT returned anything; if not, fall back to LIKE.
-		if !rows.Next() {
-			if err := rows.Close(); err != nil {
-				slog.Error("searchApi: error closing rows", slog.Any("error", err))
+		if !useLike {
+			if !rows.Next() {
+				_ = rows.Close()
+				useLike = true
+			} else {
+				// rows.Next() already advanced the cursor — scan this first row too.
+				var result SearchResult
+				if scanErr := rows.Scan(&result.Title, &result.Content, &result.URL); scanErr != nil {
+					slog.Error("searchApi: error scanning row", slog.Any("error", scanErr))
+				} else {
+					runes := []rune(result.Content)
+					if len(runes) > descriptionMaxLen {
+						result.Description = string(runes[:descriptionMaxLen]) + "..."
+					} else {
+						result.Description = result.Content
+					}
+					results = append(results, result)
+				}
 			}
+		}
+
+		if useLike {
 			rows, err = db.Query(`
 SELECT title, content, url
 FROM pages
@@ -96,20 +113,6 @@ LIMIT 20
 				)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
-			}
-		} else {
-			// rows.Next() already advanced the cursor — scan this first row too.
-			var result SearchResult
-			if err := rows.Scan(&result.Title, &result.Content, &result.URL); err != nil {
-				slog.Error("searchApi: error scanning row", slog.Any("error", err))
-			} else {
-				runes := []rune(result.Content)
-				if len(runes) > descriptionMaxLen {
-					result.Description = string(runes[:descriptionMaxLen]) + "..."
-				} else {
-					result.Description = result.Content
-				}
-				results = append(results, result)
 			}
 		}
 
