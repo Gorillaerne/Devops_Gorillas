@@ -78,6 +78,7 @@ a:hover { color: var(--accent-lt); }
 nav {
   display: flex;
   align-items: center;
+  gap: 8px;
   height: var(--nav-h);
   max-width: 1100px;
   margin: 0 auto;
