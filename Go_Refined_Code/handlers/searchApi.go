@@ -8,11 +8,14 @@ import (
 	"net/http"
 )
 
+const descriptionMaxLen = 160
+
 // SearchResult Struct
 type SearchResult struct {
-	Title   string `json:"title"`
-	URL     string
-	Content string `json:"content"`
+	Title       string `json:"title"`
+	URL         string
+	Content     string `json:"content"`
+	Description string `json:"description"`
 }
 
 // SearchResponse Struct
@@ -81,6 +84,12 @@ LIMIT 20
 			if err := rows.Scan(&result.Title, &result.Content, &result.URL); err != nil {
 				slog.Error("searchApi: error scanning row", slog.Any("error", err))
 				continue
+			}
+			runes := []rune(result.Content)
+			if len(runes) > descriptionMaxLen {
+				result.Description = string(runes[:descriptionMaxLen]) + "..."
+			} else {
+				result.Description = result.Content
 			}
 			results = append(results, result)
 		}
