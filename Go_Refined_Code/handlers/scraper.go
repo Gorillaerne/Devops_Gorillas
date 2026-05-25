@@ -82,9 +82,11 @@ type queryRow struct {
 
 func topQueries(db *sql.DB) ([]queryRow, error) {
 	rows, err := db.Query(`
-		SELECT query, language
-		FROM search_queries
-		ORDER BY count DESC
+		SELECT sq.query, sq.language
+		FROM search_queries sq
+		LEFT JOIN pages p ON p.title = sq.query AND p.language = sq.language
+		WHERE p.last_updated IS NULL OR p.last_updated < NOW() - INTERVAL 24 HOUR
+		ORDER BY sq.count DESC
 		LIMIT ?
 	`, scraperTopN)
 	if err != nil {

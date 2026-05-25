@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS pages (
     content      LONGTEXT     NOT NULL,
     PRIMARY KEY (url),
     CONSTRAINT chk_language CHECK (language IN ('en', 'da'))
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- +goose Down
 DROP TABLE IF EXISTS pages;
