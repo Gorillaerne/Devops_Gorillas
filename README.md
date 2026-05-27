@@ -15,7 +15,7 @@ The application lets users search a database of web pages, register an account, 
 - Minor improvements and feature requests are handled as part of normal development.
 - Data is backed up periodically, but no guarantee against data loss is provided.
 - The service is provided “as is” without warranties of any kind.
-- This agreement may be updated or changed at any time. 
+- This agreement may be updated or changed at any time.
 
 ## Architecture
 
