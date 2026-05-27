@@ -23,23 +23,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Build backend image
+      - name: Build images
         run: |
-          docker build \
-            -t ${{ env.BACKEND_IMAGE }}:local \
-            ./Go_Refined_Code
-
-      - name: Build frontend image
-        run: |
-          docker build \
-            -f Go_Refined_Code/Dockerfile.nginx \
-            -t ${{ env.FRONTEND_IMAGE }}:local \
-            ./Go_Refined_Code
+          docker build -t ${{ env.BACKEND_IMAGE }}:local ./Go_Refined_Code &
+          docker build -f Go_Refined_Code/Dockerfile.nginx -t ${{ env.FRONTEND_IMAGE }}:local ./Go_Refined_Code &
+          wait
 
       - name: Export images as tarballs
         run: |
-          docker save ${{ env.BACKEND_IMAGE }}:local  | gzip > backend.tar.gz
-          docker save ${{ env.FRONTEND_IMAGE }}:local | gzip > frontend.tar.gz
+          docker save ${{ env.BACKEND_IMAGE }}:local | gzip > backend.tar.gz &
+          docker save ${{ env.FRONTEND_IMAGE }}:local | gzip > frontend.tar.gz &
+          wait
 
       - name: Upload image artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -119,6 +113,10 @@ jobs:
           for TAG_NAME in $TAG $REF latest; do
             docker tag ${{ env.BACKEND_IMAGE }}:local  ${{ env.BACKEND_IMAGE }}:$TAG_NAME
             docker tag ${{ env.FRONTEND_IMAGE }}:local ${{ env.FRONTEND_IMAGE }}:$TAG_NAME
-            docker push ${{ env.BACKEND_IMAGE }}:$TAG_NAME
-            docker push ${{ env.FRONTEND_IMAGE }}:$TAG_NAME
           done
+
+          for TAG_NAME in $TAG $REF latest; do
+            docker push ${{ env.BACKEND_IMAGE }}:$TAG_NAME &
+            docker push ${{ env.FRONTEND_IMAGE }}:$TAG_NAME &
+          done
+          wait
