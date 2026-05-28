@@ -52,6 +52,9 @@ jobs:
       contents: read
       issues: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
       - name: Download image artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
@@ -120,6 +123,7 @@ jobs:
           target: 'http://localhost:8080'
           allow_issue_writing: true
           fail_action: true
+          rules_file_name: '.github/zap-rules.tsv'
 
   push:
     name: Push to GHCR
