@@ -4,6 +4,19 @@ A modernized web search engine — a migration of the original 2009 "Who Knows?"
 
 The application lets users search a database of web pages, register an account, and log in. It is deployed on Microsoft Azure and served through Nginx.
 
+## Service Level Agreement (SLA)
+
+- The web application is provided on a best-effort basis with no guaranteed uptime.
+- Downtime may occur due to maintenance, updates, or unexpected issues.
+- Support is provided on a best-effort basis, primarily during regular working hours.
+- No guaranteed response or resolution times are provided.
+- Critical issues will be prioritized over minor issues.
+- Bugs and issues are fixed on an ongoing basis as they are identified.
+- Minor improvements and feature requests are handled as part of normal development.
+- Data is backed up periodically, but no guarantee against data loss is provided.
+- The service is provided “as is” without warranties of any kind.
+- This agreement may be updated or changed at any time.
+
 ## Architecture
 
 Three-tier containerized stack:

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="da">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>About — ¿Who Knows?</title>
+  <title>Weather — ¿Who Knows?</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="../style.css">
@@ -26,28 +26,28 @@
     </div>
 
     <div class="body">
-      <div class="about-page">
 
-        <h1>Our mission.</h1>
-        <span class="accent-line"></span>
-        <p>We intend to build the world's best search engine!</p>
-
-        <h2>Our team</h2>
-        <img src="../teamphoto.png" alt="The ¿Who Knows? team">
-
+      <div class="weather-hero">
+        <span class="search-hero-eyebrow">Copenhagen, Denmark</span>
+        <h1 class="search-hero-title">Weather Forecast</h1>
+        <p class="search-hero-sub">Powered by Open-Meteo &mdash; updated every 30 minutes.</p>
       </div>
+
+      <div id="weather-current" class="weather-current">
+        <p class="weather-loading">Loading weather&hellip;</p>
+      </div>
+
+      <div id="weather-forecast" class="weather-forecast"></div>
 
       <div class="footer">
         <span>¿Who Knows? &copy; 2026</span>
-        <a href="/">Home</a>
+        <a href="/about">About</a>
       </div>
     </div>
+
+    <script src="../javaScript/weather_script.js" type="module"></script>
   </div>
 
-  <script type="module">
-    import { checkIfLoggedIn } from "../javaScript/reuseable_functions.js";
-    checkIfLoggedIn();
-  </script>
 </body>
 
 </html>
