@@ -1,0 +1,34 @@
+name: Continuous Deployment
+
+on:
+  workflow_run:
+    workflows: ["Continuous Delivery"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+            set -euo pipefail
+
+            cd /Gorillaerne/Devops_Gorillas/Go_Refined_Code
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            docker compose pull
+            docker compose up -d
+          EOF

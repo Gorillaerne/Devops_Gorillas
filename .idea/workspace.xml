@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="389be424-c039-41eb-bf6b-e4b14bee3357" name="Changes" comment="Added crawler og /metrics endpoint så vi kan få prometheus til at virker sammen">
+    <list default="true" id="389be424-c039-41eb-bf6b-e4b14bee3357" name="Changes" comment="moved tests to test-folder">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -26,7 +26,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="malthe-refactor-file-placement" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -52,7 +52,7 @@
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;malthe-monitoring&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
@@ -65,6 +65,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Go_Refined_Code/tests" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -86,6 +91,8 @@
       <workItem from="1776666856898" duration="774000" />
       <workItem from="1776673095005" duration="607000" />
       <workItem from="1776675372566" duration="1067000" />
+      <workItem from="1779701913712" duration="64000" />
+      <workItem from="1779801971795" duration="1256000" />
     </task>
     <task id="LOCAL-00001" summary="changed mysql-fil så den passer til workbench.">
       <option name="closed" value="true" />
@@ -119,7 +126,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776676112287</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="moved tests to test-folder">
+      <option name="closed" value="true" />
+      <created>1776940907428</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1776940907428</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -129,7 +144,8 @@
     <MESSAGE value="changed mysql-fil så den passer til workbench." />
     <MESSAGE value="CD test med appleboy" />
     <MESSAGE value="Added crawler og /metrics endpoint så vi kan få prometheus til at virker sammen" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added crawler og /metrics endpoint så vi kan få prometheus til at virker sammen" />
+    <MESSAGE value="moved tests to test-folder" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved tests to test-folder" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
