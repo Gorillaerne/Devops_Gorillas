@@ -102,7 +102,7 @@ func TriggerScrapeHandler() http.HandlerFunc {
 			"depth":    0,
 		})
 
-		req, err := http.NewRequest(http.MethodPost, scrapeURL, bytes.NewReader(payload))
+		req, err := http.NewRequest(http.MethodPost, scrapeURL, bytes.NewReader(payload)) //nolint:gosec // URL is from trusted server-side env var, not user input
 		if err != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
@@ -113,7 +113,7 @@ func TriggerScrapeHandler() http.HandlerFunc {
 		}
 
 		client := &http.Client{Timeout: 5 * time.Second}
-		resp, err := client.Do(req)
+		resp, err := client.Do(req) //nolint:gosec // same as above
 		if err != nil {
 			slog.Error("trigger scrape: call failed", slog.Any("error", err))
 			http.Error(w, "failed to trigger scrape", http.StatusInternalServerError)
