@@ -28,13 +28,14 @@ Every log event (from any handler or middleware) is a JSON object with `time`, `
 database.Connect()
 database.PurgeMD5Users()
 apiHandlers.StartUserMetricsCollector(database.DB, 60*time.Second)
-apiHandlers.StartScraper(database.DB, 1*time.Hour)
+apiHandlers.StartUserMetricsCollector(database.DB, 60*time.Second)
 ```
 
 - Connects to MySQL using the `DATABASE_PATH` environment variable. Goose migrations are run automatically during `Connect()` (see [Database](database.md)).
 - Deletes any legacy users whose password is not a bcrypt hash (see [Database](database.md)).
 - Starts a background goroutine that counts registered users for Prometheus every 60 seconds.
-- Starts the Wikipedia scraper, which runs every hour and populates the `pages` table from the most searched queries (see [Scraper](scraper.md)).
+
+Wikipedia content is populated by a separate DigitalOcean serverless function on a cron schedule — the server is not involved (see [Crawler & Scraper](scraper.md)).
 
 If `SEND_BREACH_EMAILS=true` is set, it also kicks off a goroutine that emails all breached users (see [Email Service](email-service.md)).
 

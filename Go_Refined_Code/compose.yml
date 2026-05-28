@@ -48,6 +48,10 @@ services:
         condition: service_healthy
     environment:
       DATABASE_PATH: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true
+      SCRAPER_KEY: ${SCRAPER_KEY}
+      SCRAPE_KEY: ${SCRAPE_KEY}
+      SCRAPE_FUNCTION_URL: ${SCRAPE_FUNCTION_URL}
+      FUNCTION_KEY: ${FUNCTION_KEY}
     restart: unless-stopped
 
   frontend-proxy:
