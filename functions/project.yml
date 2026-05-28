@@ -1,0 +1,15 @@
+packages:
+  - name: crawler
+    shared: false
+    functions:
+      - name: scrape
+        runtime: go:1.24
+        limits:
+          timeout: 300000  # 300s — fetches Wikipedia + follows links
+          memory: 256
+        web: true          # exposes a stable HTTPS URL called by POST /api/scrape
+        environment:
+          API_URL: $API_URL
+          SCRAPER_KEY: $SCRAPER_KEY
+          SCRAPE_FUNCTION_URL: $SCRAPE_FUNCTION_URL
+          FUNCTION_KEY: $FUNCTION_KEY

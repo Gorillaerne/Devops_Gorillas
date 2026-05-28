@@ -3,6 +3,8 @@ package database
 
 import (
 	"database/sql"
+	"embed"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -10,7 +12,13 @@ import (
 	/* SQL import */
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/pressly/goose/v3"
+
+	_ "devops_gorillas/database/migrations" // registers Go migrations via init()
 )
+
+//go:embed migrations/*.sql
+var migrationsFS embed.FS
 
 // DB connection to DB
 var DB *sql.DB
@@ -37,6 +45,14 @@ func Connect() error {
 
 	if err := DB.Ping(); err != nil {
 		return err
+	}
+
+	goose.SetBaseFS(migrationsFS)
+	if err := goose.SetDialect("mysql"); err != nil {
+		return fmt.Errorf("goose: failed to set dialect: %w", err)
+	}
+	if err := goose.Up(DB, "migrations"); err != nil {
+		return fmt.Errorf("goose: failed to run migrations: %w", err)
 	}
 
 	DB.SetMaxOpenConns(25)

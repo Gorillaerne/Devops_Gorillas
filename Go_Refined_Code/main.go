@@ -54,6 +54,8 @@ func main() {
 	api.HandleFunc("/login", apiHandlers.HandleAPILogin(database.DB)).Methods("POST")
 	api.HandleFunc("/logout", homeHandler).Methods("GET")
 	api.HandleFunc("/change-password", apiHandlers.HandleAPIChangePassword(database.DB)).Methods("POST")
+	api.HandleFunc("/pages", apiHandlers.AddPageHandler(database.DB)).Methods("POST")
+	api.HandleFunc("/scrape", apiHandlers.TriggerScrapeHandler()).Methods("POST")
 
 	// 4️⃣ Server
 	r.PathPrefix("/static/").Handler(
@@ -61,7 +63,7 @@ func main() {
 			http.FileServer(http.Dir("static"))),
 	)
 	// CORS options
-	headersOk := cors.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	headersOk := cors.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "X-Scraper-Key", "X-Scrape-Key", "X-Function-Key"})
 	originsOk := cors.AllowedOrigins([]string{"*"})
 	methodsOk := cors.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
 

@@ -8,10 +8,8 @@ const resultsDiv = document.getElementById("results")
 checkIfLoggedIn() 
 
 
-searchButton.addEventListener("click", () => {
-
+function doSearch() {
     const query = searchInput.value
-
     callSearchRestApi(query)
         .then(searchResults => {
             renderSearchResults(searchResults.data)
@@ -19,6 +17,12 @@ searchButton.addEventListener("click", () => {
         .catch(error => {
             console.error(error)
         })
+}
+
+searchButton.addEventListener("click", doSearch)
+
+searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doSearch()
 })
 
 function renderSearchResults(searchResults) {

@@ -68,7 +68,7 @@ jobs:
             -e MYSQL_USER=app \
             -e MYSQL_PASSWORD=app \
             -p 3306:3306 \
-            mysql:8 --default-authentication-plugin=mysql_native_password
+            mysql:8.0
 
       - name: Wait for MySQL to be ready
         run: |
@@ -79,6 +79,11 @@ jobs:
             fi
             echo "Attempt $i/20 - waiting for MySQL..."
             sleep 3
+            if [ $i -eq 20 ]; then
+              echo "MySQL never became ready - container logs:"
+              docker logs mysql
+              exit 1
+            fi
           done
 
       - name: Start backend
@@ -87,17 +92,25 @@ jobs:
             --link mysql:mysql \
             -e DATABASE_PATH="app:app@tcp(mysql:3306)/whoknows?parseTime=true" \
             -e JWT_SECRET=dast-test-secret \
+            -e ADMIN_USERNAME=admin \
+            -e ADMIN_EMAIL=admin@dast.local \
+            -e ADMIN_PASSWORD=DastTest123! \
             ${{ env.BACKEND_IMAGE }}:local
 
       - name: Wait for app to be ready
         run: |
           for i in $(seq 1 20); do
-            if curl -sf http://localhost:8080; then
+            if curl -sf http://localhost:8080/metrics; then
               echo "App ready"
               break
             fi
             echo "Attempt $i/20 - waiting..."
             sleep 3
+            if [ $i -eq 20 ]; then
+              echo "App never became ready - backend logs:"
+              docker logs backend
+              exit 1
+            fi
           done
 
       - name: OWASP ZAP Full Scan

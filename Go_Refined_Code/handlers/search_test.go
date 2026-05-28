@@ -114,6 +114,14 @@ func TestSearchAPIHandler_DefaultLanguageIsEn(t *testing.T) {
 	}
 }
 
+func TestTruncateToDescription_LongContent(t *testing.T) {
+	long := string(make([]rune, 200))
+	result := truncateToDescription(long)
+	if len([]rune(result)) != descriptionMaxLen+3 { // 160 runes + "..."
+		t.Errorf("unexpected truncated length: %d", len([]rune(result)))
+	}
+}
+
 func TestSearchAPIHandler_LanguageFilter(t *testing.T) {
 	db := newPagesDB(t)
 	seedPage(t, db, "Danish page", "Danish content", "https://example.dk", "da")

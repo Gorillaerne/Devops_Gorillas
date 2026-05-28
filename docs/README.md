@@ -22,6 +22,7 @@ This folder contains documentation for every part of the ¿Who Knows? system.
 | `handlers/emailService.go` | [Email Service](backend/email-service.md) |
 | `handlers/loggingMiddleware.go` + `metrics.go` | [Middleware & Metrics](backend/middleware.md) |
 | `handlers/weatherApi.go` | [Weather (Placeholder)](backend/weather.md) |
+| `functions/packages/crawler/crawl/main.go` | [Crawler & Scraper](backend/scraper.md) |
 | `database/sqlite.go` | [Database](backend/database.md) |
 
 ### Frontend

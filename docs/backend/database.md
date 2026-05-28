@@ -2,7 +2,7 @@
 
 **File:** `Go_Refined_Code/database/sqlite.go`
 
-Manages the MySQL database connection. Despite the filename (a remnant from an earlier SQLite phase), this file connects to MySQL in production and exposes a package-level `DB` variable used by all handlers.
+Manages the MySQL database connection and runs schema migrations on startup. Despite the filename (a remnant from an earlier SQLite phase), this file connects to MySQL in production and exposes a package-level `DB` variable used by all handlers.
 
 ---
 
@@ -18,7 +18,7 @@ var DB *sql.DB
 
 ## `Connect() error`
 
-Opens and verifies the MySQL connection. Called once from `main.go` before any routes are registered.
+Opens and verifies the MySQL connection, then runs any pending schema migrations. Called once from `main.go` before any routes are registered.
 
 **Steps:**
 
@@ -29,11 +29,62 @@ Opens and verifies the MySQL connection. Called once from `main.go` before any r
    ```
 3. Opens the connection pool with `sql.Open`. Note: this does not actually connect yet.
 4. Calls `DB.Ping()` to verify the database is reachable. Returns an error if not.
-5. Sets connection pool limits:
+5. Runs all pending Goose migrations (see [Migrations](#migrations) below).
+6. Sets connection pool limits:
    - `MaxOpenConns`: 25 — maximum number of open connections to the database.
    - `MaxIdleConns`: 5 — connections kept open in the pool when idle.
    - `ConnMaxLifetime`: 5 minutes — connections are recycled after this time to avoid stale connections.
-6. Lists all tables in the connected database and logs their names. This is a startup sanity check.
+7. Lists all tables in the connected database and logs their names. This is a startup sanity check.
+
+---
+
+## Migrations
+
+Schema changes are managed with [Goose v3](https://github.com/pressly/goose). Migration files live in `database/migrations/` and are embedded directly into the compiled binary using Go's `embed.FS` — no separate migration files are needed on the server.
+
+```go
+//go:embed migrations/*.sql
+var migrationsFS embed.FS
+```
+
+On every startup, `goose.Up()` checks which migrations have already run (tracked in the `goose_db_version` table) and applies any new ones. Migrations that have already run are never re-applied.
+
+### Migration Files
+
+| File | Description |
+|---|---|
+| `00001_create_users.sql` | Creates the `users` table |
+| `00002_create_pages.sql` | Creates the `pages` table |
+| `00003_create_search_queries.sql` | Creates the `search_queries` table |
+| `00004_seed_admin.go` | Inserts the admin user from environment variables |
+| `00005_fix_collations.sql` | Aligns both tables to `utf8mb4_unicode_ci` |
+| `00006_fulltext_search.sql` | Adds FULLTEXT indexes on `pages.title` and `pages.content` |
+
+### Adding a New Migration
+
+Create a new numbered SQL file in `database/migrations/`:
+
+```sql
+-- +goose Up
+ALTER TABLE pages ADD COLUMN new_col VARCHAR(255);
+
+-- +goose Down
+ALTER TABLE pages DROP COLUMN new_col;
+```
+
+The `-- +goose Up` and `-- +goose Down` comments are required. The `Down` block is used if you ever need to roll back a migration manually.
+
+### Admin Seed (`00004_seed_admin.go`)
+
+The admin user is seeded via a Go migration (rather than SQL) so the password can be read from environment variables and bcrypt-hashed at migration time. The following variables must be set:
+
+| Variable | Description |
+|---|---|
+| `ADMIN_USERNAME` | Admin account username |
+| `ADMIN_EMAIL` | Admin account email |
+| `ADMIN_PASSWORD` | Admin account plaintext password (hashed before storage) |
+
+`INSERT IGNORE` is used so re-running the migration on an existing database does not overwrite the admin account.
 
 ---
 
