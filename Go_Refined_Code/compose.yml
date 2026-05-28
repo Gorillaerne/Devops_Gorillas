@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: mysql:8
+    image: mysql:8.0
     container_name: mysql
     ports:
       - "127.0.0.1:3306:3306"
@@ -48,6 +48,9 @@ services:
         condition: service_healthy
     environment:
       DATABASE_PATH: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       SCRAPER_KEY: ${SCRAPER_KEY}
       SCRAPE_KEY: ${SCRAPE_KEY}
       SCRAPE_FUNCTION_URL: ${SCRAPE_FUNCTION_URL}
