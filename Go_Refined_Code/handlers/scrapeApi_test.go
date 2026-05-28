@@ -220,3 +220,50 @@ func TestTriggerScrapeHandler_DefaultLanguage(t *testing.T) {
 		t.Errorf("expected 202, got %d", w.Code)
 	}
 }
+
+func TestTriggerScrapeHandler_CallFailed(t *testing.T) {
+	// Close the server before using its URL so client.Do returns a connection error.
+	ts := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+	ts.Close()
+
+	t.Setenv("SCRAPE_KEY", "secret")
+	t.Setenv("SCRAPE_FUNCTION_URL", ts.URL)
+	h := TriggerScrapeHandler()
+
+	req := httptest.NewRequest(http.MethodPost, "/api/scrape", strings.NewReader(`{"query":"test","language":"en"}`))
+	req.Header.Set("X-Scrape-Key", "secret")
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	h(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500, got %d", w.Code)
+	}
+}
+
+func TestAddPageHandler_UpsertError(t *testing.T) {
+	// SQLite does not support MySQL's ON DUPLICATE KEY UPDATE syntax,
+	// so the upsert will fail and the handler should return 500.
+	db := newPagesDB(t)
+	t.Setenv("SCRAPER_KEY", "secret")
+	h := AddPageHandler(db)
+
+	body := `{"title":"T","url":"https://example.com","language":"en","content":"some content"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/pages", strings.NewReader(body))
+	req.Header.Set("X-Scraper-Key", "secret")
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	h(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500, got %d", w.Code)
+	}
+}
+
+func TestCallScrapeFunction_InvalidURL(t *testing.T) {
+	// "http://[" is an invalid URL — http.NewRequest will fail to parse it.
+	err := callScrapeFunction("http://[", "", "test", "en")
+	if err == nil {
+		t.Error("expected error for invalid URL")
+	}
+}
