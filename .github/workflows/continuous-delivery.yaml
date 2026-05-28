@@ -60,26 +60,28 @@ jobs:
       - name: Load backend image
         run: docker load < backend.tar.gz
 
+      - name: Create Docker network
+        run: docker network create dast-net
+
       - name: Start MySQL
         run: |
-          docker run -d --name mysql \
+          docker run -d --name mysql --network dast-net \
             -e MYSQL_ROOT_PASSWORD=root \
             -e MYSQL_DATABASE=whoknows \
             -e MYSQL_USER=app \
             -e MYSQL_PASSWORD=app \
-            -p 3306:3306 \
             mysql:8.0
 
       - name: Wait for MySQL to be ready
         run: |
-          for i in $(seq 1 20); do
-            if docker exec mysql mysqladmin ping -h localhost -u root -proot --silent 2>/dev/null; then
+          for i in $(seq 1 30); do
+            if docker exec mysql mysql -u app -papp whoknows -e "SELECT 1" 2>/dev/null; then
               echo "MySQL ready"
               break
             fi
-            echo "Attempt $i/20 - waiting for MySQL..."
+            echo "Attempt $i/30 - waiting for MySQL..."
             sleep 3
-            if [ $i -eq 20 ]; then
+            if [ $i -eq 30 ]; then
               echo "MySQL never became ready - container logs:"
               docker logs mysql
               exit 1
@@ -88,8 +90,7 @@ jobs:
 
       - name: Start backend
         run: |
-          docker run -d -p 8080:8080 --name backend \
-            --link mysql:mysql \
+          docker run -d -p 8080:8080 --name backend --network dast-net \
             -e DATABASE_PATH="app:app@tcp(mysql:3306)/whoknows?parseTime=true" \
             -e JWT_SECRET=dast-test-secret \
             -e ADMIN_USERNAME=admin \
