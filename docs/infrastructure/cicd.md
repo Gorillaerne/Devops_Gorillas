@@ -2,24 +2,47 @@
 
 **Directory:** `.github/workflows/`
 
-Four GitHub Actions workflows automate testing, building, and deploying the application.
+Five GitHub Actions workflows automate security checks, testing, building, and deploying the application. They are chained together so each stage only runs if the previous one succeeded.
+
+```
+continuous-integration.yaml
+        ↓
+continuous-delivery.yaml  →  release.yaml
+        ↓
+continuous-deployment.yaml
+```
+
+`discord-notifications.yaml` runs alongside all workflows and sends Discord alerts on success or failure.
 
 ---
 
-## CI Pipeline — `CI.yaml`
+## Continuous Integration — `continuous-integration.yaml`
 
 **Triggers:** Push to `main` or `dev`, and pull requests targeting `main` or `dev`.
 
-This pipeline ensures that code is always linted, tested, and buildable before it can be merged.
-
-### Jobs (run in parallel where possible)
+### Job dependency graph
 
 ```
-go-lint ──────┐
-              ├── go-test ──┐
-js-lint ──────┘             ├── build
-              ├── playwright─┘
-              └── (js-lint must pass before playwright)
+hashpin
+    ↓               ↓
+go-lint           js-lint
+    ↓                 ↓
+go-test           playwright-test
+    ↓     ↘
+  sast    build
+```
+
+`sast` and `build` run in parallel after `go-test` passes. The workflow only succeeds when all terminal jobs (sast, build, playwright-test) pass.
+
+---
+
+#### `hashpin` — HashPin Enforcer
+
+Scans every workflow file in `.github/workflows/` and fails if any `uses:` line references a tag or branch instead of a full 40-character commit SHA. This prevents supply chain attacks where a malicious actor could push a new version to a tag you depend on.
+
+All `uses:` lines in this repository must be pinned to a SHA, e.g.:
+```yaml
+uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 ```
 
 ---
@@ -28,11 +51,10 @@ js-lint ──────┘             ├── build
 
 Runs [golangci-lint](https://golangci-lint.run) against the Go source code.
 
+- **Needs:** `hashpin`
 - **Working directory:** `./Go_Refined_Code`
 - **Config file:** `./linters/.golangci.yml`
 - **Enabled linters:** `govet`, `errcheck`, `staticcheck`, `unused`, `revive`, `gosec`, `misspell`, `bodyclose`, `gofmt`, `goimports`
-
-The linter catches code style issues, unused variables, unhandled errors, and potential security problems before they reach the codebase.
 
 ---
 
@@ -40,117 +62,141 @@ The linter catches code style issues, unused variables, unhandled errors, and po
 
 Runs [Biome](https://biomejs.dev) against the JavaScript files.
 
+- **Needs:** `hashpin`
 - **Target:** `./Go_Refined_Code/static/javaScript/`
-- Biome enforces consistent code style and catches common JavaScript mistakes.
 
 ---
 
 #### `go-test`
 
-Runs the Go unit and integration test suite.
+Runs the Go test suite and generates a coverage report.
 
-- **Needs:** `go-lint` to pass first.
-- **Command:** `go test ./...`
-- **Setup:** Caches the Go module cache and build cache by hashing `go.sum` so dependencies are not re-downloaded on every run.
-- Tests use in-memory SQLite so no database container is required.
+- **Needs:** `go-lint`
+- **Command:** `go test -coverprofile=coverage.out ./...`
+- Caches the Go module and build cache by hashing `go.sum`.
+- Uploads `coverage.out` as an artifact for the `sast` job to consume.
 
 ---
 
 #### `playwright-test`
 
-Runs end-to-end browser tests.
+Runs end-to-end browser tests using Chromium.
 
-- **Needs:** `js-lint` to pass first.
+- **Needs:** `js-lint`
 - **Working directory:** `./Go_Refined_Code/tests/e2e`
-- **Steps:**
-  1. Install Node.js 20 and npm dependencies (`npm ci`).
-  2. Install Chromium browser and system dependencies (`npx playwright install --with-deps chromium`).
-  3. Run tests (`npx playwright test`).
-- Tests spin up a local static file server and drive a real Chromium browser.
+
+---
+
+#### `sast` — SonarCloud
+
+Static Application Security Testing. Scans the Go source code for bugs, vulnerabilities, and code smells.
+
+- **Needs:** `go-test` (downloads the coverage artifact)
+- **Config:** `Go_Refined_Code/sonar-project.properties`
+- **Secrets required:** `SONAR_TOKEN`
+- Only reports results for the `main` branch on the free SonarCloud plan.
 
 ---
 
 #### `build`
 
-Compiles the Go application to catch any build errors that tests might miss.
+Compiles the Go application to verify there are no build errors.
 
-- **Needs:** All four previous jobs to pass.
+- **Needs:** `go-test`
 - **Command:** `go build ./...`
+- Runs in parallel with `sast` and `playwright-test`.
 
 ---
 
-## CD Pipeline — `CD.yaml`
+## Continuous Delivery — `continuous-delivery.yaml`
 
-**Triggers:** Push to `main`, a version tag matching `v*.*.*`, or a manual workflow dispatch.
+**Triggers:** When Continuous Integration completes successfully on `main`, a version tag matching `v*.*.*`, or a manual workflow dispatch.
 
-Builds Docker images, pushes them to the GitHub Container Registry, and deploys them to the Azure server.
+Builds Docker images, scans them with OWASP ZAP, and only pushes them to GHCR if the scan passes.
 
-### Job 1: `build-and-push`
+### Job 1: `build`
 
-1. **Logs in to GHCR** using the `GITHUB_TOKEN` secret (automatically available in GitHub Actions).
-2. **Builds and pushes the Go backend image** tagged as:
-   - `ghcr.io/gorillaerne/go-backend:sha-<commit>`
-   - `ghcr.io/gorillaerne/go-backend:main`
-   - `ghcr.io/gorillaerne/go-backend:latest`
-3. **Builds and pushes the Nginx frontend image** with the same tag pattern.
-
-Uses `docker/build-push-action` with layer caching enabled (cached by GitHub Actions cache) to speed up repeated builds.
-
-### Job 2: `deploy`
-
-**Needs:** `build-and-push` to complete successfully.
-
-Connects to the Azure VM over SSH and runs the deployment:
+Builds both Docker images in parallel and exports them as gzip tarballs, uploaded as a workflow artifact for subsequent jobs.
 
 ```bash
-cd /path/to/Devops_Gorillas
-git pull origin main
+docker build -t ghcr.io/gorillaerne/go-backend:local ./Go_Refined_Code &
+docker build -f Go_Refined_Code/Dockerfile.nginx -t ghcr.io/gorillaerne/frontend-proxy:local ./Go_Refined_Code &
+wait
+```
+
+### Job 2: `dast` — OWASP ZAP
+
+Dynamic Application Security Testing. Loads the backend image, starts it on port 8080, and runs a ZAP full scan against it.
+
+- **Needs:** `build`
+- Waits up to 45 seconds for the app to become ready before scanning.
+- Uses `fail_action: true` — if ZAP finds any alerts at WARN level or above, the job fails and the image is **not pushed**.
+- Creates GitHub Issues for any findings.
+
+### Job 3: `push`
+
+Loads the images from the artifact, logs in to GHCR, and pushes all tags in parallel.
+
+- **Needs:** `dast` — only runs if the DAST scan passed.
+- Each image is pushed with three tags simultaneously:
+  - `sha-<short-commit>` — immutable reference to the exact build
+  - `<branch-or-tag-name>` — e.g. `main` or `v2026.05.27-abc1234`
+  - `latest`
+
+---
+
+## Continuous Deployment — `continuous-deployment.yaml`
+
+**Triggers:** When Continuous Delivery completes successfully, or a manual workflow dispatch.
+
+SSHes into the production server and pulls the new images.
+
+```bash
+cd /Gorillaerne/Devops_Gorillas/Go_Refined_Code
+git fetch origin main && git reset --hard origin/main
 docker compose pull
 docker compose up -d
 ```
 
-This pulls the newly built images from GHCR and restarts the containers. Existing containers are replaced with zero-downtime (Docker Compose starts the new container before stopping the old one by default).
-
-**Secrets required:**
-- `SSH_PRIVATE_KEY` — private key to authenticate with the Azure VM.
-- `AZURE_VM_IP` — IP address of the server (`51.120.83.21`).
+**Secrets required:** `SERVER_SSH_KEY`, `SERVER_IP`
 
 ---
 
-## Other Workflows
+## Release — `release.yaml`
 
-### `release.yaml`
+**Triggers:** When Continuous Delivery completes successfully on `main`.
 
-Triggers on version tags (`v*.*.*`). Creates a GitHub Release automatically, allowing the team to publish official versioned releases from the repository.
+Auto-generates a GitHub Release with a date+SHA tag (e.g. `v2026.05.27-abc1234`) and release notes from merged pull requests since the last release.
 
-### `discord.yaml`
-
-Sends a notification to a Discord channel when a workflow completes. Useful for the team to get notified of CI failures or successful deployments without watching GitHub directly.
+Runs after Continuous Delivery so a release only exists once the image has been built, scanned, and pushed to GHCR.
 
 ---
 
-## Secrets and Environment Variables
+## Discord Notifications — `discord-notifications.yaml`
 
-The following secrets must be set in the GitHub repository settings:
+Watches all workflows on `main` and posts to Discord on success or failure.
+
+**Secrets required:** `CI_FAIL_DISCORD_WEBHOOK`, `PUSH_MAIN_DISCORD_WEBHOOK`
+
+---
+
+## Secrets
 
 | Secret | Used by | Description |
 |---|---|---|
-| `GITHUB_TOKEN` | CD | Auto-provided by GitHub Actions for GHCR auth |
-| `SSH_PRIVATE_KEY` | CD | SSH key for Azure VM access |
-| `AZURE_VM_IP` | CD | Azure VM hostname or IP |
+| `GITHUB_TOKEN` | Delivery, Deployment | Auto-provided by GitHub Actions |
+| `SONAR_TOKEN` | CI (sast) | SonarCloud authentication token |
+| `SERVER_SSH_KEY` | Deployment | SSH private key for the production server |
+| `SERVER_IP` | Deployment | IP address of the production server |
+| `CI_FAIL_DISCORD_WEBHOOK` | Discord | Webhook URL for failure notifications |
+| `PUSH_MAIN_DISCORD_WEBHOOK` | Discord | Webhook URL for success notifications |
 
-Application secrets (JWT_SECRET, database credentials) are set as environment variables directly on the Azure VM, not in GitHub.
+Application secrets (JWT_SECRET, etc.) are set as environment variables directly on the server, not in GitHub.
 
 ---
 
 ## Pre-Commit Hook
 
-**File:** `.githooks/pre-commit`
+**File:** `.git/hooks/pre-commit`
 
-A local git hook that runs before every commit. It runs `golangci-lint` and `biome lint` so that developers catch issues before pushing rather than waiting for CI.
-
-To install it:
-```bash
-cp .githooks/pre-commit .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
+Runs `golangci-lint` before every commit and blocks the commit if linting fails. This mirrors the `go-lint` job in CI so developers catch issues locally before pushing.

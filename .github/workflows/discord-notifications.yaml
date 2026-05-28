@@ -1,4 +1,4 @@
-name: Discord Notification
+name: Discord Notifications
 
 on:
   workflow_run:

@@ -1,0 +1,122 @@
+name: Continuous Delivery
+
+on:
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    types: [completed]
+    branches: [main]
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+env:
+  BACKEND_IMAGE: ghcr.io/gorillaerne/go-backend
+  FRONTEND_IMAGE: ghcr.io/gorillaerne/frontend-proxy
+
+jobs:
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Build images
+        run: |
+          docker build -t ${{ env.BACKEND_IMAGE }}:local ./Go_Refined_Code &
+          docker build -f Go_Refined_Code/Dockerfile.nginx -t ${{ env.FRONTEND_IMAGE }}:local ./Go_Refined_Code &
+          wait
+
+      - name: Export images as tarballs
+        run: |
+          docker save ${{ env.BACKEND_IMAGE }}:local | gzip > backend.tar.gz &
+          docker save ${{ env.FRONTEND_IMAGE }}:local | gzip > frontend.tar.gz &
+          wait
+
+      - name: Upload image artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: docker-images
+          path: |
+            backend.tar.gz
+            frontend.tar.gz
+          retention-days: 1
+
+  dast:
+    name: DAST - OWASP ZAP
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Download image artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: docker-images
+
+      - name: Load backend image
+        run: docker load < backend.tar.gz
+
+      - name: Start backend
+        run: docker run -d -p 8080:8080 --name backend ${{ env.BACKEND_IMAGE }}:local
+
+      - name: Wait for app to be ready
+        run: |
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:8080; then
+              echo "App ready"
+              break
+            fi
+            echo "Attempt $i/15 - waiting..."
+            sleep 3
+          done
+
+      - name: OWASP ZAP Full Scan
+        uses: zaproxy/action-full-scan@bee4e5be916301228d2b1b2dcad73aab6fa6a25b # v0.13.0
+        with:
+          target: 'http://localhost:8080'
+          allow_issue_writing: true
+          fail_action: true
+
+  push:
+    name: Push to GHCR
+    runs-on: ubuntu-latest
+    needs: [dast]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Download image artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: docker-images
+
+      - name: Load images
+        run: |
+          docker load < backend.tar.gz
+          docker load < frontend.tar.gz
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Tag and push images
+        run: |
+          TAG=sha-$(git rev-parse --short HEAD)
+          REF=${{ github.ref_name }}
+
+          for TAG_NAME in $TAG $REF latest; do
+            docker tag ${{ env.BACKEND_IMAGE }}:local  ${{ env.BACKEND_IMAGE }}:$TAG_NAME
+            docker tag ${{ env.FRONTEND_IMAGE }}:local ${{ env.FRONTEND_IMAGE }}:$TAG_NAME
+          done
+
+          for TAG_NAME in $TAG $REF latest; do
+            docker push ${{ env.BACKEND_IMAGE }}:$TAG_NAME &
+            docker push ${{ env.FRONTEND_IMAGE }}:$TAG_NAME &
+          done
+          wait
