@@ -39,15 +39,7 @@ func AddPageHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		_, err := db.Exec(`
-			INSERT INTO pages (title, url, language, content, last_updated)
-			VALUES (?, ?, ?, ?, NOW())
-			ON DUPLICATE KEY UPDATE
-				title        = VALUES(title),
-				content      = VALUES(content),
-				last_updated = NOW()
-		`, page.Title, page.URL, page.Language, page.Content)
-		if err != nil {
+		if err := upsertScrapedPage(db, page.Title, page.URL, page.Language, page.Content); err != nil {
 			slog.Error("add page: db upsert failed", slog.Any("error", err))
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
@@ -84,47 +76,75 @@ func TriggerScrapeHandler() http.HandlerFunc {
 			http.Error(w, "query is required", http.StatusBadRequest)
 			return
 		}
-		if body.Language == "" {
-			body.Language = "en"
-		}
-		if body.Language != "en" && body.Language != "da" {
+
+		lang, ok := validateScrapeLanguage(body.Language)
+		if !ok {
 			http.Error(w, "language must be 'en' or 'da'", http.StatusBadRequest)
 			return
 		}
+
 		if scrapeURL == "" {
 			http.Error(w, "scraper not configured", http.StatusServiceUnavailable)
 			return
 		}
 
-		payload, _ := json.Marshal(map[string]interface{}{
-			"query":    body.Query,
-			"language": body.Language,
-			"depth":    0,
-		})
-
-		req, err := http.NewRequest(http.MethodPost, scrapeURL, bytes.NewReader(payload)) //nolint:gosec // URL is from trusted server-side env var, not user input
-		if err != nil {
-			http.Error(w, "internal error", http.StatusInternalServerError)
-			return
-		}
-		req.Header.Set("Content-Type", "application/json")
-		if functionKey != "" {
-			req.Header.Set("X-Function-Key", functionKey)
-		}
-
-		client := &http.Client{Timeout: 5 * time.Second}
-		resp, err := client.Do(req) //nolint:gosec // same as above
-		if err != nil {
+		if err := callScrapeFunction(scrapeURL, functionKey, body.Query, lang); err != nil {
 			slog.Error("trigger scrape: call failed", slog.Any("error", err))
 			http.Error(w, "failed to trigger scrape", http.StatusInternalServerError)
 			return
 		}
-		defer func() { _ = resp.Body.Close() }()
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusAccepted)
 		_ = json.NewEncoder(w).Encode(map[string]string{"message": "scrape queued"})
 	}
+}
+
+func validateScrapeLanguage(lang string) (string, bool) {
+	if lang == "" {
+		return "en", true
+	}
+	if lang != "en" && lang != "da" {
+		return "", false
+	}
+	return lang, true
+}
+
+func callScrapeFunction(scrapeURL, functionKey, query, language string) error {
+	payload, _ := json.Marshal(map[string]interface{}{
+		"query":    query,
+		"language": language,
+		"depth":    0,
+	})
+
+	req, err := http.NewRequest(http.MethodPost, scrapeURL, bytes.NewReader(payload)) //nolint:gosec // URL is from trusted server-side env var, not user input
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if functionKey != "" {
+		req.Header.Set("X-Function-Key", functionKey)
+	}
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Do(req) //nolint:gosec // same as above
+	if err != nil {
+		return err
+	}
+	defer func() { _ = resp.Body.Close() }()
+	return nil
+}
+
+func upsertScrapedPage(db *sql.DB, title, pageURL, language, content string) error {
+	_, err := db.Exec(`
+		INSERT INTO pages (title, url, language, content, last_updated)
+		VALUES (?, ?, ?, ?, NOW())
+		ON DUPLICATE KEY UPDATE
+			title        = VALUES(title),
+			content      = VALUES(content),
+			last_updated = NOW()
+	`, title, pageURL, language, content)
+	return err
 }
 
 func checkAPIKey(incoming, expected string) bool {
